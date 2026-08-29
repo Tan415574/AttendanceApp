@@ -1,3 +1,5 @@
+<!-- ANSTAN - Tanit Ansara -->
+
 # INF3003W Attendance App
 
 ASP.NET Core 8 / Razor Pages / EF Core (SQLite) / SignalR.
