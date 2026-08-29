@@ -1,0 +1,88 @@
+%% ANSTAN - Tanit Ansara
+%% Class diagram: Meeting -> MeetingSession -> AttendanceRecord data model
+%% Source: Models/Meeting.cs, Models/MeetingSession.cs, Models/AttendanceRecord.cs,
+%% Models/Enums.cs, Data/ApplicationUser.cs
+
+classDiagram
+    class ApplicationUser {
+        +string Id
+        +string FullName
+        +string? StudentNumber
+        +int AvatarIndex
+    }
+
+    class Meeting {
+        +int Id
+        +string Title
+        +string? Description
+        +MeetingType Type
+        +RecurrencePattern Recurrence
+        +DateOnly StartDate
+        +DateOnly? EndDate
+        +DayOfWeek? DayOfWeek
+        +TimeOnly TimeOfDay
+        +string LecturerId
+        +GetOccurrenceDates() DateOnly[]
+    }
+
+    class MeetingSession {
+        +int Id
+        +int MeetingId
+        +DateOnly Date
+        +bool IsOpen
+        +DateTime? OpenedAt
+        +DateTime? ClosedAt
+        +string JoinCode
+    }
+
+    class AttendanceRecord {
+        +int Id
+        +int MeetingSessionId
+        +string StudentId
+        +DateTime CheckedInAt
+        +CheckInMethod Method
+        +AttendanceStatus Status
+        +bool ManuallyAdjusted
+        +string? QueryMessage
+        +bool QueryOpen
+        +string? LecturerResponse
+    }
+
+    class MeetingType {
+        <<enumeration>>
+        Lecture
+        Workshop
+        Test
+    }
+
+    class RecurrencePattern {
+        <<enumeration>>
+        OnceOff
+        Weekly
+    }
+
+    class CheckInMethod {
+        <<enumeration>>
+        QrScan
+        ManualCode
+        Import
+    }
+
+    class AttendanceStatus {
+        <<enumeration>>
+        Present
+        Disputed
+    }
+
+    ApplicationUser "1" --> "many" Meeting : Lecturer owns
+    Meeting "1" *-- "many" MeetingSession : expands into (GetOccurrenceDates)
+    MeetingSession "1" *-- "many" AttendanceRecord : one per checked-in student
+    ApplicationUser "1" --> "many" AttendanceRecord : Student checks in
+    Meeting --> MeetingType
+    Meeting --> RecurrencePattern
+    AttendanceRecord --> CheckInMethod
+    AttendanceRecord --> AttendanceStatus
+
+    note for Meeting "Template the lecturer defines\n(e.g. 'Tuesday Workshop, weekly, 14:00').\nDoes not represent a specific date."
+    note for MeetingSession "One concrete dated occurrence,\nmaterialized from the Meeting template.\nJoinCode regenerates each time it opens."
+    note for AttendanceRecord "Unique index on (MeetingSessionId, StudentId)\nenforces no duplicate check-ins at the DB level.\nDisputed status doubles as the query/dispute thread."

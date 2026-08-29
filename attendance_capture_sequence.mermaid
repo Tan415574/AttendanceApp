@@ -1,0 +1,39 @@
+%% ANSTAN - Tanit Ansara
+%% Sequence diagram: student self-capture (check-in) flow
+%% Source: Pages/Student/CheckIn.cshtml.cs, Hubs/AttendanceHub.cs, wwwroot/js/board.js
+
+sequenceDiagram
+    actor Student
+    participant CheckInPage as CheckIn Page<br/>(CheckInModel)
+    participant DB as ApplicationDbContext
+    participant Hub as AttendanceHub<br/>(SignalR)
+    participant Board as Lecturer Board<br/>(board.js, other browser)
+
+    Student->>CheckInPage: Scan QR / enter join code + student number
+    CheckInPage->>CheckInPage: Compare typed StudentNumber<br/>against signed-in account
+    alt student number does not match account
+        CheckInPage-->>Student: Error: "doesn't match your signed-in account"
+    else matches
+        CheckInPage->>DB: Find open MeetingSession by JoinCode
+        alt no matching open session
+            DB-->>CheckInPage: null
+            CheckInPage-->>Student: Error: "code isn't active"
+        else session found
+            DB-->>CheckInPage: MeetingSession
+            CheckInPage->>DB: AttendanceRecord already exists for (session, student)?
+            alt already checked in
+                DB-->>CheckInPage: true
+                CheckInPage-->>Student: "You're already checked in"
+            else new check-in
+                DB-->>CheckInPage: false
+                CheckInPage->>DB: Insert AttendanceRecord<br/>(Status=Present, Method=QrScan/ManualCode)
+                DB-->>CheckInPage: saved
+                CheckInPage->>DB: Count AttendanceRecords for session
+                DB-->>CheckInPage: totalCheckedIn
+                CheckInPage->>Hub: SendAsync("CheckIn", studentName,<br/>studentNumber, avatarIndex, totalCheckedIn)<br/>to group "session-{id}"
+                Hub->>Board: CheckIn event pushed in real time
+                Board->>Board: spawnAvatar() — new avatar<br/>drops onto the physics board
+                CheckInPage-->>Student: "You're marked present for {meeting}"
+            end
+        end
+    end
