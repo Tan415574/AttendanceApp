@@ -64,6 +64,23 @@ decisions" instruction:**
 - No email confirmation / password reset flow — fine for a one-week assignment,
   flag it explicitly in your reflection if the rubric cares about production-readiness.
 
+## Verification
+
+Ran a full end-to-end walk-through in a real headless browser (Playwright): register
+lecturer → create meeting → start session → register student → check in via join code
+→ confirm the live board updates in real time (no reload) → confirm the student's
+calendar shows the attendance. All steps passed.
+
+**One real bug found and fixed in the process:** `Pages/Index.cshtml` (the `/` route)
+was missing the `@model AttendanceApp.Pages.IndexModel` directive that every other page
+in this app has. Without it, Razor Pages never bound `IndexModel` to the view, so
+`OnGet()` — which redirects signed-in users to their home page and everyone else to
+`/Account/Login` — was never invoked. The homepage silently rendered its (empty)
+template and returned `200` with no content instead of redirecting. This meant the
+root URL never worked, for anyone, the whole time — `dotnet build` doesn't catch it
+since it's a Razor Page runtime-binding issue, not a compile error. Fixed by adding the
+missing `@model` line.
+
 ## UML artefacts
 
 - `attendance_capture_sequence.mermaid` — sequence diagram of the student check-in

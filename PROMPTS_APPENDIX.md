@@ -129,7 +129,8 @@ from screenshots of the conversation, not an automated transcript pull.*
     ever existed — the "§5.3/§6.2" citations were AI-invented)*
 27. *(08:22)* `yes do both` *(requesting both UML artefacts — class diagram and
     sequence diagram)*
+28. *(09:11)* `run the app`
 
 ---
 
-**Total prompts across all sessions: 30** (3 in Session 0, 27 in Sessions 1–3)
+**Total prompts across all sessions: 31** (3 in Session 0, 28 in Sessions 1–3)
