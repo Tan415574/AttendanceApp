@@ -1,0 +1,34 @@
+@page
+@model AttendanceApp.Pages.Lecturer.Meetings.IndexModel
+@{ ViewData["Title"] = "My meetings"; }
+
+<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <h1>My meetings</h1>
+        <a class="btn" href="/Lecturer/Meetings/Create">+ New meeting</a>
+    </div>
+
+    @if (!Model.Meetings.Any())
+    {
+        <p>No meetings yet — create your first lecture, workshop, or test above.</p>
+    }
+
+    @foreach (var m in Model.Meetings)
+    {
+        <div class="meeting-row">
+            <div>
+                <span class="pill @m.Type.ToString().ToLower()">@m.Type</span>
+                <strong style="margin-left:8px;">@m.Title</strong>
+                <div style="color:#767b73;font-size:0.85rem;">
+                    @(m.Recurrence == AttendanceApp.Models.RecurrencePattern.Weekly
+                        ? $"Weekly on {m.DayOfWeek}s, {m.TimeOfDay:hh\\:mm} · {m.StartDate:d MMM} – {m.EndDate:d MMM}"
+                        : $"{m.StartDate:d MMM yyyy} at {m.TimeOfDay:hh\\:mm}")
+                </div>
+            </div>
+            <div>
+                <a class="btn secondary" href="/Lecturer/Board?meetingId=@m.Id">Open board</a>
+                <a class="btn secondary" href="/Lecturer/Meetings/Import/@m.Id">Import history</a>
+            </div>
+        </div>
+    }
+</div>

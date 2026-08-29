@@ -1,0 +1,46 @@
+@using Microsoft.AspNetCore.Identity
+@using AttendanceApp.Data
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · AttendanceApp</title>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+    <header class="topbar">
+        <a class="brand" href="/">AttendanceApp</a>
+        <nav>
+            @if (SignInManager.IsSignedIn(User))
+            {
+                if (User.IsInRole("Lecturer"))
+                {
+                    <a href="/Lecturer/Meetings/Index">My meetings</a>
+                    <a href="/Lecturer/Overview">Overview</a>
+                    <a href="/Lecturer/Queries">Queries</a>
+                }
+                else
+                {
+                    <a href="/Student/CheckIn">Check in</a>
+                    <a href="/Student/Attendance">My attendance</a>
+                }
+                <form method="post" action="/Account/Logout" class="inline-form">
+                    <button type="submit" class="link-button">Sign out</button>
+                </form>
+            }
+            else
+            {
+                <a href="/Account/Login">Sign in</a>
+                <a href="/Account/Register">Sign up</a>
+            }
+        </nav>
+    </header>
+
+    <main class="page">
+        @RenderBody()
+    </main>
+</body>
+</html>

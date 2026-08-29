@@ -1,0 +1,41 @@
+@page
+@model AttendanceApp.Pages.Account.RegisterModel
+@{ ViewData["Title"] = "Sign up"; }
+
+<div class="card" style="max-width:440px;margin:0 auto;">
+    <h1>Sign up</h1>
+    <form method="post">
+        <div class="form-group">
+            <label>I am a</label>
+            <select asp-for="Input.Role">
+                <option value="Student">Student</option>
+                <option value="Lecturer">Lecturer</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Full name</label>
+            <input asp-for="Input.FullName" required />
+        </div>
+        <div class="form-group" id="studentNumberGroup">
+            <label>Student number (students only)</label>
+            <input asp-for="Input.StudentNumber" placeholder="e.g. STDNUM021" />
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input asp-for="Input.Email" type="email" required />
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input asp-for="Input.Password" type="password" required />
+        </div>
+
+        @if (!ModelState.IsValid)
+        {
+            <div class="pill test" style="display:block;margin-bottom:12px;">
+                <span asp-validation-summary="All"></span>
+            </div>
+        }
+
+        <button class="btn" type="submit">Create account</button>
+    </form>
+</div>

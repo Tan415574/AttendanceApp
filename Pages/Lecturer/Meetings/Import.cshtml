@@ -1,0 +1,57 @@
+@page "{meetingId:int}"
+@model AttendanceApp.Pages.Lecturer.Meetings.ImportModel
+@{ ViewData["Title"] = "Import attendance"; }
+
+<div class="card" style="max-width:640px;">
+    <h1>Import legacy attendance</h1>
+    <p style="color:#767b73;">For <strong>@Model.Meeting.Title</strong>.</p>
+
+    <p style="color:#767b73;font-size:0.9rem;">
+        Expected format: a CSV file, one row per student. Column 1 is the student's name,
+        column 2 their student number, and every column after that is one session date
+        (e.g. <code>2026/03/02</code>) with <code>1</code> for present or <code>0</code> for
+        absent in each cell. Re-uploading overwrites: a <code>1</code> cell sets that
+        student/date to present, a <code>0</code> cell clears any existing present record —
+        except where a student has an open query on that session, which is left alone and
+        reported instead of being overwritten.
+    </p>
+
+    @if (Model.ErrorMessage is not null)
+    {
+        <p style="color:#e8641c;">@Model.ErrorMessage</p>
+    }
+
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>CSV file</label>
+            <input type="file" asp-for="UploadFile" accept=".csv,.txt" required />
+        </div>
+        <button class="btn" type="submit">Import</button>
+    </form>
+
+    @if (Model.Result is { } r)
+    {
+        <div class="card" style="background:#fafaf7;margin-top:20px;">
+            <h2 style="margin-top:0;">Import results</h2>
+            <ul>
+                <li>@r.SessionsCreated new session(s) created for date columns that didn't exist yet</li>
+                <li>@r.RecordsMarkedPresent cell(s) marked present</li>
+                <li>@r.RecordsMarkedAbsent existing record(s) cleared back to absent</li>
+                <li>@r.UnknownStudents row(s) skipped — student number not registered</li>
+                <li>@r.InvalidCells cell(s) skipped — value wasn't <code>1</code> or <code>0</code></li>
+                <li>@r.ConflictsSkipped cell(s) left untouched — student has an open query on that session</li>
+            </ul>
+
+            @if (r.Messages.Any())
+            {
+                <p style="color:#767b73;font-size:0.85rem;">Details:</p>
+                <ul style="font-size:0.85rem;color:#767b73;">
+                    @foreach (var msg in r.Messages)
+                    {
+                        <li>@msg</li>
+                    }
+                </ul>
+            }
+        </div>
+    }
+</div>

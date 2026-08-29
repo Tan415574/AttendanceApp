@@ -1,0 +1,49 @@
+@page
+@model AttendanceApp.Pages.Student.AttendanceModel
+@{ ViewData["Title"] = "My attendance"; }
+
+<div class="card">
+    <h1>My attendance</h1>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px;">
+        <div class="card" style="flex:1;text-align:center;background:#eafbe0;">
+            <div style="font-size:1.8rem;font-weight:800;color:#3d9b4a;">@Model.PresentCount</div>
+            <div style="color:#767b73;font-size:0.85rem;">Sessions attended</div>
+        </div>
+        <div class="card" style="flex:1;text-align:center;background:#fde8e0;">
+            <div style="font-size:1.8rem;font-weight:800;color:#e8641c;">@Model.AbsentCount</div>
+            <div style="color:#767b73;font-size:0.85rem;">Sessions missed</div>
+        </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <a class="btn secondary" href="?year=@(Model.Month == 1 ? Model.Year - 1 : Model.Year)&month=@(Model.Month == 1 ? 12 : Model.Month - 1)">‹ Prev</a>
+        <strong>@(new DateOnly(Model.Year, Model.Month, 1).ToString("MMMM yyyy"))</strong>
+        <a class="btn secondary" href="?year=@(Model.Month == 12 ? Model.Year + 1 : Model.Year)&month=@(Model.Month == 12 ? 1 : Model.Month + 1)">Next ›</a>
+    </div>
+
+    <div class="calendar-grid">
+        @foreach (var day in Model.Days)
+        {
+            var isFuture = day.Date > DateOnly.FromDateTime(DateTime.Today);
+            var cls = !day.HasSession ? "empty" : (isFuture ? "future" : (day.Present ? "present" : "absent"));
+            var canQuery = day.HasSession && !isFuture && !day.Present && !day.QueryPending;
+
+            if (canQuery)
+            {
+                <a class="cal-cell @cls" href="/Student/Query?sessionId=@day.SessionId" title="@day.MeetingTitle — click to query">@day.Date.Day</a>
+            }
+            else
+            {
+                <div class="cal-cell @cls" title="@(day.QueryPending ? day.MeetingTitle + " — query pending" : day.MeetingTitle)">
+                    @day.Date.Day@(day.QueryPending ? "•" : "")
+                </div>
+            }
+        }
+    </div>
+
+    <div class="legend">
+        <span><span class="dot present"></span> Attended</span>
+        <span><span class="dot absent"></span> Missed (click a missed day to query it)</span>
+    </div>
+</div>
