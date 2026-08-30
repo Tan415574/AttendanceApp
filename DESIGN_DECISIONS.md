@@ -259,6 +259,20 @@ card fade/slide-in on page load, a vanilla-JS count-up on the Overview snapshot 
 and tuned Chart.js entrance easing — chosen because Overview is the page most people
 will actually watch load. Everything respects `prefers-reduced-motion`.
 
+**Follow-up: sign-in/sign-up redesigned as a split screen.** The centered card from
+§9's initial reskin read as cramped on a wide desktop viewport — flagged directly by
+the developer with a second reference image (a two-column auth layout: branded left
+panel, form on the right). Rebuilt `Login.cshtml`/`Register.cshtml` on a shared
+`_AuthHero.cshtml` partial, with the topbar hidden on just these two pages
+(`ViewData["HideTopbar"]`) since the split layout carries its own branding. The
+Register role picker became two toggle buttons instead of a `<select>`, matching the
+reference and incidentally improving the UX (the student-number field now only shows
+when "Student" is selected, instead of always showing with a "(students only)"
+caveat). Caught and fixed a real CSS cascade bug while verifying this: a mobile
+media-query override was placed *before* the base rule it was meant to override, so
+the later base rule won at equal specificity regardless of viewport — the hero panel
+never actually hid on narrow screens until the rule order was fixed.
+
 ## 10. AI's role in this build
 
 AI (Claude, via Claude Code) was used to accelerate implementation of decisions made
