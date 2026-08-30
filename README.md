@@ -117,6 +117,15 @@ pass as of the latest run.
   meeting's planned recurrence didn't happen to land on today. Fixed: starting a
   meeting now always means today — the session is found-or-created for today on the
   spot, so clicking "Start meeting" always immediately shows the QR/join-code screen.
+- **Every failed form submission on 5 pages silently showed nothing.** Login,
+  Register, Student CheckIn, Student Query, and Create Meeting all had
+  `<span asp-validation-summary="All">`. ASP.NET Core's validation-summary tag helper
+  only activates on a `<div>` — on a `<span>` it's inert, so the server-generated error
+  text (e.g. "Incorrect email or password.") never rendered. This is almost certainly
+  what looked like "sign-in doesn't work": a wrong password failed with zero visible
+  feedback. Fixed by moving the attribute onto a `<div>` on all five pages. Confirmed
+  with a full Playwright click-through of every button/link in the app (24/24 pass),
+  including an explicit wrong-password check that now shows the error text.
 
 ## UML artefacts
 

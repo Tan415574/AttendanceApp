@@ -172,7 +172,9 @@ from screenshots of the conversation, not an automated transcript pull.*
 38. *(18:35)* answered follow-up: tighten "needs attention" to require a 2+ session
     miss streak (not just 1+), after being shown it flagged 60% of the class on a
     real 104-student test import
+39. *(2026-08-30, 21:07)* `the sign in does not work and make sure each button goes
+    to right place`
 
 ---
 
-**Total prompts across all sessions: 41** (3 in Session 0, 38 in Sessions 1–3)
+**Total prompts across all sessions: 42** (3 in Session 0, 39 in Sessions 1–3)
