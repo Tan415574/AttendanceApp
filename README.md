@@ -37,7 +37,14 @@ The app auto-creates the "Lecturer" and "Student" Identity roles on first run
   (`Pages/Student/Attendance.*`, `Pages/Student/Query.*`)
 - Lecturer query resolution: accept (flips to Present) / reject
   (`Pages/Lecturer/Queries.*`)
-- Attendance-per-lecture bar graph (Chart.js) (`Pages/Lecturer/Overview.*`)
+- Lecturer attendance dashboard (Chart.js) (`Pages/Lecturer/Overview.*`): class-snapshot
+  tiles (overall %, sessions held, students tracked, need-attention count), a
+  students-who-need-attention list (flags <75% or a 2+ session miss streak, critical
+  badge under 50% or a 3+ streak), a gradient-filled weekly trend line, a distribution
+  donut (Excellent/Good/At risk/Critical), average-attendance bars by session type and
+  day of week, and a per-student table with click-to-expand session history. All-time,
+  combined across every meeting — see `DESIGN_DECISIONS.md` §7 for the exact
+  calculation rules and why the attention threshold is 2+ rather than 1+.
 - Historical attendance import: one file picker and one "Import past attendance"
   button, sitting directly on `Meetings/Index` — the page a lecturer lands on
   immediately after signing in (`IndexModel.OnPostImportAsync`). Upload a **CSV**

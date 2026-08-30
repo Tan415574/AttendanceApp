@@ -188,25 +188,59 @@ either import or registration time won't match, and the placeholder just sits un
 — no different in effect from a typo anywhere else in the system, and not worth
 building fuzzy-matching for.
 
-## 7. Deliberately out of scope
+## 7. Attendance analytics dashboard (lecturer Overview)
+
+`Pages/Lecturer/Overview.cshtml(.cs)` replaces a single bar chart with a full
+dashboard: class-snapshot tiles, a students-who-need-attention list, a weekly trend
+chart, a distribution donut, average-attendance breakdowns by session type and day of
+week, and a per-student expandable table.
+
+**Every calculation choice here was specified by the developer up front, not left to
+the AI to infer** — before writing any code, these were confirmed explicitly:
+
+- **All-time, combined across every meeting.** Every registered student is treated as
+  expected at every session this lecturer has held, across all their meetings combined
+  — not scoped per-course, since there's no enrolment model yet (§9). This makes the
+  denominator ("how many sessions was this student expected at") the same number for
+  every student, which is what makes a single overall % meaningful at all.
+- **Distribution band cutoffs:** Excellent ≥90%, Good 75–89%, At risk 50–74%, Critical
+  <50%.
+- **Category charts (by session type, by day of week) show average attendance %**, not
+  raw headcount — a fair comparison across categories with different session counts
+  (e.g. one Test date shouldn't look "busier" than five Monday lectures just because
+  more total students showed up across those five).
+
+**"Needs attention" threshold — tuned after testing, not guessed.** The initial rule
+(percent <75% OR *any* current miss streak) was tested against the real 104-student
+CSV and flagged 63 students — 60% of the class. A single missed session shouldn't put
+someone on an alarm list; it's not being taken seriously as a signal if two-thirds of
+the class shows up on it. Tightened to require a **2+ session streak** to flag (percent
+<75% OR streak ≥2). The critical-badge rule stays as specified (<50% or a 3+ streak) —
+only the list's inclusion criterion changed, since a real number from real data showed
+the original was too noisy to be useful as an alarm list.
+
+## 8. Deliberately out of scope
 
 These were left unbuilt as conscious scope decisions, not oversights:
 
 - **Course/module enrolment scoping** — every student can currently see/check into
   every meeting. Fine for a single-course demo matching this assignment's context; not
-  fine for a real multi-course deployment. Flagged rather than silently assumed.
+  fine for a real multi-course deployment. Flagged rather than silently assumed. This
+  is also why the Overview dashboard (§7) has to treat "every student, every meeting"
+  as one combined pool rather than scoping per-course.
 - **Deployment/hosting configuration** — out of scope for a one-week academic
   deliverable; the app is built to run locally via `dotnet run`.
 - **Email confirmation / password reset** — `RequireConfirmedAccount = false` in
   `Program.cs`. Acceptable for a one-week assignment demo; would need revisiting for a
   production rollout since account recovery has no path currently.
 
-## 8. AI's role in this build
+## 9. AI's role in this build
 
 AI (Claude, via Claude Code) was used to accelerate implementation of decisions made
 above — generating boilerplate, wiring EF Core relationships, and implementing the
 SignalR/matter.js integration — but the architecture choices in this document (Razor
 Pages over MVC, the Meeting/MeetingSession split, DB-level uniqueness for attendance
-integrity, reusing AttendanceRecord for disputes instead of a separate table, and the
-scope cuts in §7) were directed by the developer, not generated unprompted by the
-AI. See the prompts appendix for the specific prompts used.
+integrity, reusing AttendanceRecord for disputes instead of a separate table, the
+dashboard's calculation rules in §7, and the scope cuts in §8) were directed by the
+developer, not generated unprompted by the AI. See the prompts appendix for the
+specific prompts used.

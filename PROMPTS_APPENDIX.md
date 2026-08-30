@@ -152,7 +152,27 @@ from screenshots of the conversation, not an automated transcript pull.*
 35. *(18:08)* answered clarifying questions: sign-in was confirmed working (stale
     browser tab), and the import button should sit directly on the landing page,
     not a separate page
+36. *(2026-08-30, 18:18)* `Class snapshot — four tiles: overall attendance %,
+    sessions held, students tracked, and a "need attention" count that turns red
+    when it's non-zero. Students who need attention — this is the alarming-
+    attendance list you asked for. It flags anyone under 75% attendance or on a
+    live streak of missed sessions, worst offenders first, each showing their %
+    and either "missed last N in a row" or their last-attended date. A critical
+    badge (red) kicks in under 50% or a 3+ streak; everything else flagged is
+    amber. Attendance trend — upgraded from bars to a smooth line/area chart with
+    a gradient fill, week by week. Attendance distribution — a donut chart sorting
+    the whole class into Excellent / Good / At risk / Critical bands, with counts.
+    By session type and by day of week — bar charts to spot whether, say, Fridays
+    or Tests are where attendance drops. Per-student table stays at the bottom for
+    the full picture, tap any row to expand their session history. make this ask
+    questions to make sure of everything before you do it`
+37. *(18:19)* answered clarifying questions: all-time window, combined across all
+    meetings, Excellent ≥90/Good 75-89/At risk 50-74/Critical <50 band cutoffs,
+    category charts by average % rather than headcount
+38. *(18:35)* answered follow-up: tighten "needs attention" to require a 2+ session
+    miss streak (not just 1+), after being shown it flagged 60% of the class on a
+    real 104-student test import
 
 ---
 
-**Total prompts across all sessions: 38** (3 in Session 0, 35 in Sessions 1–3)
+**Total prompts across all sessions: 41** (3 in Session 0, 38 in Sessions 1–3)
