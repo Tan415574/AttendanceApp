@@ -5,11 +5,28 @@
 <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h1>My meetings</h1>
-        <div>
-            <a class="btn secondary" href="/Lecturer/ImportHistory">Import past attendance</a>
-            <a class="btn" href="/Lecturer/Meetings/Create">+ New meeting</a>
-        </div>
+        <a class="btn" href="/Lecturer/Meetings/Create">+ New meeting</a>
     </div>
+
+    <form method="post" asp-page-handler="Import" enctype="multipart/form-data" style="display:flex;gap:8px;align-items:center;margin:16px 0;">
+        <input type="file" asp-for="ImportFile" accept=".csv,.txt" required />
+        <button class="btn secondary" type="submit">Import past attendance</button>
+    </form>
+    @if (Model.ImportError is not null)
+    {
+        <p style="color:#e8641c;">@Model.ImportError</p>
+    }
+    @if (Model.ImportResultSummary is { } r)
+    {
+        <div class="card" style="background:#fafaf7;margin-bottom:16px;">
+            <p style="margin:0;">
+                Imported: @r.SessionsCreated session(s), @r.RecordsMarkedPresent present record(s),
+                @r.PlaceholderAccountsCreated new student account(s) created for numbers that weren't
+                registered yet. Every student's attendance has already been worked out — they can sign
+                in and see it right away.
+            </p>
+        </div>
+    }
 
     @if (!Model.Meetings.Any())
     {
