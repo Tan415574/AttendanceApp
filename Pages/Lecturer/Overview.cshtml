@@ -1,32 +1,214 @@
 @page
 @model AttendanceApp.Pages.Lecturer.OverviewModel
-@{ ViewData["Title"] = "Overview"; }
+@{
+    ViewData["Title"] = "Overview";
 
-<div class="card">
-    <h1>Attendance overview</h1>
-    <p style="color:#767b73;">Students present per session, across all your meetings.</p>
-    <canvas id="overviewChart" height="100"></canvas>
-</div>
+    string BandClass(double pct) => pct >= 90 ? "excellent" : pct >= 75 ? "good" : pct >= 50 ? "atrisk" : "critical";
+}
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-<script>
-    const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Bars.Select(b => b.Label)));
-    const present = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Bars.Select(b => b.Present)));
+@if (Model.SessionsHeld == 0 || Model.StudentsTracked == 0)
+{
+    <div class="card">
+        <h1>Attendance overview</h1>
+        <p style="color:#767b73;">
+            Nothing to show yet — this fills in once you've held at least one session and
+            have at least one registered student.
+        </p>
+    </div>
+}
+else
+{
+    <div class="card">
+        <h1>Class snapshot</h1>
+        <div class="snapshot-grid">
+            <div class="snapshot-tile">
+                <div class="value">@Model.OverallPercent.ToString("0.#")%</div>
+                <div class="label">Overall attendance</div>
+            </div>
+            <div class="snapshot-tile">
+                <div class="value">@Model.SessionsHeld</div>
+                <div class="label">Sessions held</div>
+            </div>
+            <div class="snapshot-tile">
+                <div class="value">@Model.StudentsTracked</div>
+                <div class="label">Students tracked</div>
+            </div>
+            <div class="snapshot-tile alert @(Model.NeedAttentionCount == 0 ? "zero" : "")">
+                <div class="value">@Model.NeedAttentionCount</div>
+                <div class="label">Need attention</div>
+            </div>
+        </div>
+    </div>
 
-    new Chart(document.getElementById('overviewChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Students present',
-                data: present,
-                backgroundColor: '#7bc043',
-                borderRadius: 6,
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+    <div class="card">
+        <h2>Students who need attention</h2>
+        @if (!Model.NeedAttention.Any())
+        {
+            <p style="color:#767b73;">Nobody's flagged — everyone's above 75% with no active miss streak.</p>
         }
-    });
-</script>
+        else
+        {
+            foreach (var s in Model.NeedAttention)
+            {
+                <div class="attention-row">
+                    <div>
+                        <span class="attention-name">@s.Name</span>
+                        <span class="attention-detail">(@s.StudentNumber)</span>
+                        <span class="badge @(s.Critical ? "critical" : "amber")">@(s.Critical ? "Critical" : "Watch")</span>
+                    </div>
+                    <div class="attention-detail" style="text-align:right;">
+                        <div><strong>@s.Percent.ToString("0.#")%</strong></div>
+                        <div>
+                            @if (s.MissedStreak > 0)
+                            {
+                                @($"Missed last {s.MissedStreak} in a row")
+                            }
+                            else if (s.LastAttended is { } d)
+                            {
+                                @($"Last attended {d:d MMM yyyy}")
+                            }
+                            else
+                            {
+                                @("Never attended")
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="charts-grid">
+        <div class="card">
+            <h2>Attendance trend</h2>
+            <canvas id="trendChart" height="180"></canvas>
+        </div>
+        <div class="card">
+            <h2>Attendance distribution</h2>
+            <canvas id="distributionChart" height="180"></canvas>
+        </div>
+        <div class="card">
+            <h2>By session type</h2>
+            <canvas id="typeChart" height="180"></canvas>
+        </div>
+        <div class="card">
+            <h2>By day of week</h2>
+            <canvas id="dowChart" height="180"></canvas>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>All students</h2>
+        <p style="color:#767b73;font-size:0.85rem;">Tap a row to expand their session history.</p>
+        <table class="student-table">
+            <thead>
+                <tr><th>Student</th><th>Number</th><th>Attendance</th><th>Present</th></tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.Students.Count; i++)
+                {
+                    var s = Model.Students[i];
+                    <tr class="student-row" data-target="hist-@i">
+                        <td>@s.Name</td>
+                        <td>@s.StudentNumber</td>
+                        <td><span class="pct-pill @BandClass(s.Percent)">@s.Percent.ToString("0.#")%</span></td>
+                        <td>@s.Present / @s.Total</td>
+                    </tr>
+                    <tr class="history-row" id="hist-@i">
+                        <td colspan="4">
+                            <ul class="history-list">
+                                @foreach (var h in s.History)
+                                {
+                                    <li>
+                                        <span>@h.Date.ToString("d MMM yyyy") — @h.MeetingTitle</span>
+                                        <span style="color:@(h.Present ? "var(--accent-dark)" : "var(--red)");font-weight:600;">
+                                            @(h.Present ? "Present" : "Absent")
+                                        </span>
+                                    </li>
+                                }
+                            </ul>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+    <script>
+        document.querySelectorAll('.student-row').forEach(row => {
+            row.addEventListener('click', () => {
+                document.getElementById(row.dataset.target).classList.toggle('open');
+            });
+        });
+
+        const trendLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Trend.Select(t => t.Label)));
+        const trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Trend.Select(t => t.Percent)));
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const gradient = trendCtx.createLinearGradient(0, 0, 0, 200);
+        gradient.addColorStop(0, 'rgba(123, 192, 67, 0.4)');
+        gradient.addColorStop(1, 'rgba(123, 192, 67, 0.02)');
+        new Chart(trendCtx, {
+            type: 'line',
+            data: {
+                labels: trendLabels,
+                datasets: [{
+                    label: 'Attendance %',
+                    data: trendData,
+                    borderColor: '#3d9b4a',
+                    backgroundColor: gradient,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#3d9b4a',
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+            }
+        });
+
+        new Chart(document.getElementById('distributionChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Excellent (≥90%)', 'Good (75-89%)', 'At risk (50-74%)', 'Critical (<50%)'],
+                datasets: [{
+                    data: [@Model.ExcellentCount, @Model.GoodCount, @Model.AtRiskCount, @Model.CriticalCount],
+                    backgroundColor: ['#3d9b4a', '#7bc043', '#f0a83b', '#e8641c'],
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } }
+            }
+        });
+
+        function categoryChart(canvasId, labels, data) {
+            new Chart(document.getElementById(canvasId), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average attendance %',
+                        data: data,
+                        backgroundColor: '#7bc043',
+                        borderRadius: 6,
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+                }
+            });
+        }
+
+        categoryChart('typeChart',
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BySessionType.Select(t => t.Label))),
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BySessionType.Select(t => t.Percent))));
+
+        categoryChart('dowChart',
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ByDayOfWeek.Select(t => t.Label))),
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ByDayOfWeek.Select(t => t.Percent))));
+    </script>
+}
