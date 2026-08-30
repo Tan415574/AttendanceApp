@@ -244,3 +244,14 @@ integrity, reusing AttendanceRecord for disputes instead of a separate table, th
 dashboard's calculation rules in §7, and the scope cuts in §8) were directed by the
 developer, not generated unprompted by the AI. See the prompts appendix for the
 specific prompts used.
+
+**Additional tooling disclosure:** for the visual-polish pass on `wwwroot/css/site.css`
+and `Pages/_Layout.cshtml`, three third-party Claude Code skills were installed as
+local tooling (not part of this repo — they live in the outer `AttendanceApp/.claude/`
+folder, outside this project's git root) and used to guide Claude Code's polish pass:
+Emil Kowalski's [`emil-design-eng`](https://github.com/emilkowalski/skill), Paul
+Bakaus's [`impeccable`](https://github.com/pbakaus/impeccable), and
+[`taste-skill`](https://github.com/senlindesign/taste-skill). These are prompt-only
+skill definitions (instructions the AI follows), not code copied into the app — every
+line actually changed in `site.css`/`_Layout.cshtml` was written by Claude Code per
+the developer's "run it" instruction and is reviewed above like any other change.

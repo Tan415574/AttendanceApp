@@ -174,7 +174,13 @@ from screenshots of the conversation, not an automated transcript pull.*
     real 104-student test import
 39. *(2026-08-30, 21:07)* `the sign in does not work and make sure each button goes
     to right place`
+40. *(21:30)* `install the emil kowaslki design skill the impeccable design skill
+    and the taste sill` *(installed three external Claude Code skills — Emil
+    Kowalski's emil-design-eng, Paul Bakaus's impeccable, and taste-skill — as
+    local tooling under `.claude/skills/`, outside the app's own git repo)*
+41. *(21:45)* `yes run it` *(ran the impeccable skill's "polish" pass against
+    site.css and the shared layout)*
 
 ---
 
-**Total prompts across all sessions: 42** (3 in Session 0, 39 in Sessions 1–3)
+**Total prompts across all sessions: 44** (3 in Session 0, 41 in Sessions 1–3)
