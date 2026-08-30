@@ -31,9 +31,7 @@
 
         @if (!ModelState.IsValid)
         {
-            <div class="pill test" style="display:block;margin-bottom:12px;">
-                <span asp-validation-summary="All"></span>
-            </div>
+            <div class="pill test" style="display:block;margin-bottom:12px;" asp-validation-summary="All"></div>
         }
 
         <button class="btn" type="submit">Create account</button>

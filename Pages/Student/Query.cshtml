@@ -16,7 +16,7 @@
         </div>
         @if (!ModelState.IsValid)
         {
-            <p style="color:#e8641c;"><span asp-validation-summary="All"></span></p>
+            <div style="color:#e8641c;" asp-validation-summary="All"></div>
         }
         <button class="btn" type="submit">Submit query</button>
     </form>

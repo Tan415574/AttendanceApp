@@ -11,9 +11,7 @@
     }
     @if (!ModelState.IsValid)
     {
-        <div class="pill test" style="display:block;padding:12px;margin-bottom:16px;">
-            <span asp-validation-summary="All"></span>
-        </div>
+        <div class="pill test" style="display:block;padding:12px;margin-bottom:16px;" asp-validation-summary="All"></div>
     }
 
     <div id="qr-reader" style="margin-bottom:16px;"></div>
