@@ -273,6 +273,21 @@ media-query override was placed *before* the base rule it was meant to override,
 the later base rule won at equal specificity regardless of viewport — the hero panel
 never actually hid on narrow screens until the rule order was fixed.
 
+**Follow-up: Overview restructured into an actual dashboard grid.** Asked to audit
+every page's desktop layout ("should be in parts, not just scroll and under each
+other"). Screenshotting every page at 1600px wide found the real problem: `.page`'s
+960px max-width left every page — not just Overview — floating as one narrow column
+with hundreds of pixels of unused space on both sides. Overview was the worst case
+concretely: two unbounded lists (63 flagged students, 104-row student table) stacked
+full-height one after another produced a 9449px-tall page of pure vertical scroll.
+Widened `.page` to 1160px (forms are unaffected — they already constrain their own
+card width independently, same pattern as the auth split-screen), and rebuilt
+Overview as a `.dash-row`/`.dash-col` grid — need-attention and the distribution
+donut side by side, trend chart and the two smaller bar charts side by side, height-
+capped scrollable panels (with a sticky table header) instead of unbounded lists.
+Same information, arranged in parts: the page dropped from 9449px to 2294px tall at
+1600px width with nothing removed, only reflowed.
+
 ## 10. AI's role in this build
 
 AI (Claude, via Claude Code) was used to accelerate implementation of decisions made
