@@ -6,13 +6,13 @@
     <h1>My attendance</h1>
 
     <div style="display:flex;gap:12px;margin-bottom:20px;">
-        <div class="card" style="flex:1;text-align:center;background:#eafbe0;">
-            <div style="font-size:1.8rem;font-weight:800;color:#3d9b4a;">@Model.PresentCount</div>
-            <div style="color:#767b73;font-size:0.85rem;">Sessions attended</div>
+        <div class="card" style="flex:1;text-align:center;background:rgba(142,240,127,0.08);">
+            <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:var(--accent);">@Model.PresentCount</div>
+            <div style="color:var(--muted);font-size:0.85rem;">Sessions attended</div>
         </div>
-        <div class="card" style="flex:1;text-align:center;background:#fde8e0;">
-            <div style="font-size:1.8rem;font-weight:800;color:#e8641c;">@Model.AbsentCount</div>
-            <div style="color:#767b73;font-size:0.85rem;">Sessions missed</div>
+        <div class="card" style="flex:1;text-align:center;background:rgba(255,122,107,0.08);">
+            <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:800;color:var(--red);">@Model.AbsentCount</div>
+            <div style="color:var(--muted);font-size:0.85rem;">Sessions missed</div>
         </div>
     </div>
 

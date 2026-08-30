@@ -12,14 +12,14 @@
 
     @foreach (var q in Model.OpenQueries)
     {
-        <div class="card" style="background:#fafaf7;">
+        <div class="card" style="background:rgba(255,255,255,0.03);">
             <strong>@q.Student!.FullName</strong> (@q.Student.StudentNumber)
             — @q.MeetingSession!.Meeting!.Title, @q.MeetingSession.Date.ToString("d MMM yyyy")
-            <p style="color:#444;">"@q.QueryMessage"</p>
+            <p style="color:var(--muted);">"@q.QueryMessage"</p>
 
             <form method="post" asp-page-handler="Accept" style="display:inline-block;margin-right:8px;">
                 <input type="hidden" name="recordId" value="@q.Id" />
-                <input type="text" name="response" placeholder="Optional note to student" style="padding:6px 10px;border-radius:8px;border:1px solid #ddd;margin-right:6px;" />
+                <input type="text" name="response" placeholder="Optional note to student" style="padding:6px 10px;border-radius:8px;border:1px solid var(--card-border);margin-right:6px;background:rgba(255,255,255,0.03);color:var(--text);" />
                 <button class="btn" type="submit">Mark present</button>
             </form>
             <form method="post" asp-page-handler="Reject" style="display:inline-block;">

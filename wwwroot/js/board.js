@@ -3,19 +3,20 @@
 // Real-time push comes from SignalR (AttendanceHub) rather than polling.
 
 // Mirrors Services/AvatarAssigner.cs — keep these two lists in sync if you add avatars.
+// Palette matches the dark dashboard reskin's accent set (site.css --accent-*).
 const AVATARS = [
-    { shape: "round", color: "#F6A8D8" },
-    { shape: "clover", color: "#EC6FB6" },
-    { shape: "wave", color: "#B58AD9" },
-    { shape: "cloud", color: "#C9B6F0" },
-    { shape: "round", color: "#38B6E8" },
-    { shape: "hex", color: "#1FA9C9" },
-    { shape: "round", color: "#2FA84F" },
-    { shape: "triangle", color: "#3D9B4A" },
-    { shape: "square", color: "#E8641C" },
-    { shape: "round", color: "#F08A1C" },
-    { shape: "pill", color: "#F5A623" },
-    { shape: "round", color: "#F6C93B" },
+    { shape: "round", color: "#F17FB0" },
+    { shape: "clover", color: "#9B8CFB" },
+    { shape: "wave", color: "#5AC8FA" },
+    { shape: "cloud", color: "#3FD9C7" },
+    { shape: "round", color: "#6C7BF0" },
+    { shape: "hex", color: "#F5B942" },
+    { shape: "round", color: "#8EF07F" },
+    { shape: "triangle", color: "#5FCE63" },
+    { shape: "square", color: "#FF7A6B" },
+    { shape: "round", color: "#9B8CFB" },
+    { shape: "pill", color: "#F17FB0" },
+    { shape: "round", color: "#5AC8FA" },
 ];
 
 (function initBoard() {

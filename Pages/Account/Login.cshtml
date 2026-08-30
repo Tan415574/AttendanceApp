@@ -16,7 +16,7 @@
 
         @if (!ModelState.IsValid)
         {
-            <div style="color:#e8641c;" asp-validation-summary="All"></div>
+            <div style="color:var(--red);" asp-validation-summary="All"></div>
         }
 
         <button class="btn" type="submit">Sign in</button>

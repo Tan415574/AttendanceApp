@@ -6,7 +6,7 @@
     <h1>@Model.Meeting.Title <span class="pill @Model.Meeting.Type.ToString().ToLower()">@Model.Meeting.Type</span></h1>
     @if (!string.IsNullOrWhiteSpace(Model.Meeting.Description))
     {
-        <p style="color:#767b73;">@Model.Meeting.Description</p>
+        <p style="color:var(--muted);">@Model.Meeting.Description</p>
     }
 
     @if (!Model.TodaySession!.IsOpen)
@@ -20,13 +20,13 @@
     {
         <div class="board-wrap">
             <div class="board-info">
-                <div class="card">
-                    <p style="margin:0;color:#767b73;">Join code</p>
+                <div class="card hero-card">
+                    <p style="margin:0;color:var(--hero-text-muted);">Join code</p>
                     <div class="join-code">@Model.TodaySession.JoinCode</div>
                     <div class="qr-box">
                         <img src="@Model.QrDataUrl" alt="QR code to check in" />
                     </div>
-                    <p style="font-size:0.85rem;color:#767b73;">Scan, or go to /Student/CheckIn and enter the code</p>
+                    <p style="font-size:0.85rem;color:var(--hero-text-muted);">Scan, or go to /Student/CheckIn and enter the code</p>
                     <form method="post" asp-page-handler="Close" style="margin-top:12px;">
                         <input type="hidden" name="sessionId" value="@Model.TodaySession.Id" />
                         <button class="btn danger" type="submit">End meeting</button>

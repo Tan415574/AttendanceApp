@@ -10,7 +10,7 @@
 {
     <div class="card">
         <h1>Attendance overview</h1>
-        <p style="color:#767b73;">
+        <p style="color:var(--muted);">
             Nothing to show yet — this fills in once you've held at least one session and
             have at least one registered student.
         </p>
@@ -21,20 +21,20 @@ else
     <div class="card">
         <h1>Class snapshot</h1>
         <div class="snapshot-grid">
-            <div class="snapshot-tile">
-                <div class="value">@Model.OverallPercent.ToString("0.#")%</div>
+            <div class="snapshot-tile hero">
+                <div class="value" data-count="@Model.OverallPercent.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)" data-suffix="%">0%</div>
                 <div class="label">Overall attendance</div>
             </div>
             <div class="snapshot-tile">
-                <div class="value">@Model.SessionsHeld</div>
+                <div class="value" data-count="@Model.SessionsHeld">0</div>
                 <div class="label">Sessions held</div>
             </div>
-            <div class="snapshot-tile">
-                <div class="value">@Model.StudentsTracked</div>
+            <div class="snapshot-tile hero purple">
+                <div class="value" data-count="@Model.StudentsTracked">0</div>
                 <div class="label">Students tracked</div>
             </div>
             <div class="snapshot-tile alert @(Model.NeedAttentionCount == 0 ? "zero" : "")">
-                <div class="value">@Model.NeedAttentionCount</div>
+                <div class="value" data-count="@Model.NeedAttentionCount">0</div>
                 <div class="label">Need attention</div>
             </div>
         </div>
@@ -44,7 +44,7 @@ else
         <h2>Students who need attention</h2>
         @if (!Model.NeedAttention.Any())
         {
-            <p style="color:#767b73;">Nobody's flagged — everyone's above 75% with no active miss streak.</p>
+            <p style="color:var(--muted);">Nobody's flagged — everyone's above 75% with no active miss streak.</p>
         }
         else
         {
@@ -99,7 +99,7 @@ else
 
     <div class="card">
         <h2>All students</h2>
-        <p style="color:#767b73;font-size:0.85rem;">Tap a row to expand their session history.</p>
+        <p style="color:var(--muted);font-size:0.85rem;">Tap a row to expand their session history.</p>
         <table class="student-table">
             <thead>
                 <tr><th>Student</th><th>Number</th><th>Attendance</th><th>Present</th></tr>
@@ -121,7 +121,7 @@ else
                                 {
                                     <li>
                                         <span>@h.Date.ToString("d MMM yyyy") — @h.MeetingTitle</span>
-                                        <span style="color:@(h.Present ? "var(--accent-dark)" : "var(--red)");font-weight:600;">
+                                        <span style="color:@(h.Present ? "var(--accent)" : "var(--red)");font-weight:600;">
                                             @(h.Present ? "Present" : "Absent")
                                         </span>
                                     </li>
@@ -142,12 +142,42 @@ else
             });
         });
 
+        // Signature moment: snapshot tiles count up from 0 on load, instead of
+        // just appearing — skipped for reduced-motion users, who get the final
+        // value immediately.
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        document.querySelectorAll('.snapshot-tile .value[data-count]').forEach(el => {
+            const target = parseFloat(el.dataset.count);
+            const suffix = el.dataset.suffix || '';
+            const isDecimal = el.dataset.count.includes('.');
+            if (reduceMotion || isNaN(target)) {
+                el.textContent = el.dataset.count + suffix;
+                return;
+            }
+            const duration = 900;
+            const start = performance.now();
+            function tick(now) {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+                const current = target * eased;
+                el.textContent = (isDecimal ? current.toFixed(1) : Math.round(current)) + suffix;
+                if (progress < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+        });
+
+        const chartAnimation = reduceMotion ? { duration: 0 } : { duration: 900, easing: 'easeOutQuart' };
+        const gridColor = 'rgba(255,255,255,0.06)';
+        const tickColor = '#9d9db0';
+        Chart.defaults.color = tickColor;
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
         const trendLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Trend.Select(t => t.Label)));
         const trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Trend.Select(t => t.Percent)));
         const trendCtx = document.getElementById('trendChart').getContext('2d');
         const gradient = trendCtx.createLinearGradient(0, 0, 0, 200);
-        gradient.addColorStop(0, 'rgba(123, 192, 67, 0.4)');
-        gradient.addColorStop(1, 'rgba(123, 192, 67, 0.02)');
+        gradient.addColorStop(0, 'rgba(142, 240, 127, 0.35)');
+        gradient.addColorStop(1, 'rgba(142, 240, 127, 0.02)');
         new Chart(trendCtx, {
             type: 'line',
             data: {
@@ -155,17 +185,21 @@ else
                 datasets: [{
                     label: 'Attendance %',
                     data: trendData,
-                    borderColor: '#3d9b4a',
+                    borderColor: '#8ef07f',
                     backgroundColor: gradient,
                     fill: true,
                     tension: 0.35,
                     pointRadius: 3,
-                    pointBackgroundColor: '#3d9b4a',
+                    pointBackgroundColor: '#8ef07f',
                 }]
             },
             options: {
+                animation: chartAnimation,
                 plugins: { legend: { display: false } },
-                scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+                scales: {
+                    y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', color: tickColor }, grid: { color: gridColor } },
+                    x: { ticks: { color: tickColor }, grid: { display: false } }
+                }
             }
         });
 
@@ -175,16 +209,17 @@ else
                 labels: ['Excellent (≥90%)', 'Good (75-89%)', 'At risk (50-74%)', 'Critical (<50%)'],
                 datasets: [{
                     data: [@Model.ExcellentCount, @Model.GoodCount, @Model.AtRiskCount, @Model.CriticalCount],
-                    backgroundColor: ['#3d9b4a', '#7bc043', '#f0a83b', '#e8641c'],
+                    backgroundColor: ['#8ef07f', '#3fd9c7', '#f5b942', '#ff7a6b'],
                     borderWidth: 0,
                 }]
             },
             options: {
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12 } } }
+                animation: chartAnimation,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 12, color: tickColor } } }
             }
         });
 
-        function categoryChart(canvasId, labels, data) {
+        function categoryChart(canvasId, labels, data, color) {
             new Chart(document.getElementById(canvasId), {
                 type: 'bar',
                 data: {
@@ -192,23 +227,29 @@ else
                     datasets: [{
                         label: 'Average attendance %',
                         data: data,
-                        backgroundColor: '#7bc043',
+                        backgroundColor: color,
                         borderRadius: 6,
                     }]
                 },
                 options: {
+                    animation: chartAnimation,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } }
+                    scales: {
+                        y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', color: tickColor }, grid: { color: gridColor } },
+                        x: { ticks: { color: tickColor }, grid: { display: false } }
+                    }
                 }
             });
         }
 
         categoryChart('typeChart',
             @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BySessionType.Select(t => t.Label))),
-            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BySessionType.Select(t => t.Percent))));
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BySessionType.Select(t => t.Percent))),
+            '#9b8cfb');
 
         categoryChart('dowChart',
             @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ByDayOfWeek.Select(t => t.Label))),
-            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ByDayOfWeek.Select(t => t.Percent))));
+            @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ByDayOfWeek.Select(t => t.Percent))),
+            '#5ac8fa');
     </script>
 }

@@ -14,11 +14,11 @@
     </form>
     @if (Model.ImportError is not null)
     {
-        <p style="color:#e8641c;">@Model.ImportError</p>
+        <p style="color:var(--red);">@Model.ImportError</p>
     }
     @if (Model.ImportResultSummary is { } r)
     {
-        <div class="card" style="background:#fafaf7;margin-bottom:16px;">
+        <div class="card" style="background:rgba(142,240,127,0.08);margin-bottom:16px;">
             <p style="margin:0;">
                 Imported: @r.SessionsCreated session(s), @r.RecordsMarkedPresent present record(s),
                 @r.PlaceholderAccountsCreated new student account(s) created for numbers that weren't
@@ -39,7 +39,7 @@
             <div>
                 <span class="pill @m.Type.ToString().ToLower()">@m.Type</span>
                 <strong style="margin-left:8px;">@m.Title</strong>
-                <div style="color:#767b73;font-size:0.85rem;">
+                <div style="color:var(--muted);font-size:0.85rem;">
                     @(m.Recurrence == AttendanceApp.Models.RecurrencePattern.Weekly
                         ? $"Weekly on {m.DayOfWeek}s, {m.TimeOfDay:hh\\:mm} · {m.StartDate:d MMM} – {m.EndDate:d MMM}"
                         : $"{m.StartDate:d MMM yyyy} at {m.TimeOfDay:hh\\:mm}")

@@ -7,18 +7,18 @@ public static class AvatarAssigner
 {
     public static readonly AvatarDef[] Avatars =
     {
-        new("blob-round",   "#F6A8D8", "excited"),
-        new("blob-clover",  "#EC6FB6", "joyful"),
-        new("blob-wave",    "#B58AD9", "grateful"),
-        new("blob-cloud",   "#C9B6F0", "energized"),
-        new("blob-round",   "#38B6E8", "sensitive"),
-        new("blob-hex",     "#1FA9C9", "confused"),
-        new("blob-round",   "#2FA84F", "bored"),
-        new("blob-triangle","#3D9B4A", "stressed"),
-        new("blob-square",  "#E8641C", "angry"),
-        new("blob-round",   "#F08A1C", "insecure"),
-        new("blob-pill",    "#F5A623", "hurt"),
-        new("blob-round",   "#F6C93B", "guilty"),
+        new("blob-round",   "#F17FB0", "excited"),
+        new("blob-clover",  "#9B8CFB", "joyful"),
+        new("blob-wave",    "#5AC8FA", "grateful"),
+        new("blob-cloud",   "#3FD9C7", "energized"),
+        new("blob-round",   "#6C7BF0", "sensitive"),
+        new("blob-hex",     "#F5B942", "confused"),
+        new("blob-round",   "#8EF07F", "bored"),
+        new("blob-triangle","#5FCE63", "stressed"),
+        new("blob-square",  "#FF7A6B", "angry"),
+        new("blob-round",   "#9B8CFB", "insecure"),
+        new("blob-pill",    "#F17FB0", "hurt"),
+        new("blob-round",   "#5AC8FA", "guilty"),
     };
 
     public static int AssignIndex(string studentNumber)

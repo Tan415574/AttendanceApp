@@ -14,22 +14,27 @@
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
+    @{
+        bool IsActive(string prefix) => Context.Request.Path.StartsWithSegments(prefix);
+    }
     <header class="topbar">
         <a class="brand" href="/">AttendanceApp</a>
         <nav>
             @if (SignInManager.IsSignedIn(User))
             {
-                if (User.IsInRole("Lecturer"))
-                {
-                    <a href="/Lecturer/Meetings/Index">My meetings</a>
-                    <a href="/Lecturer/Overview">Overview</a>
-                    <a href="/Lecturer/Queries">Queries</a>
-                }
-                else
-                {
-                    <a href="/Student/CheckIn">Check in</a>
-                    <a href="/Student/Attendance">My attendance</a>
-                }
+                <span class="nav-pill">
+                    @if (User.IsInRole("Lecturer"))
+                    {
+                        <a class="@(IsActive("/Lecturer/Meetings") ? "active" : "")" href="/Lecturer/Meetings/Index">My meetings</a>
+                        <a class="@(IsActive("/Lecturer/Overview") ? "active" : "")" href="/Lecturer/Overview">Overview</a>
+                        <a class="@(IsActive("/Lecturer/Queries") ? "active" : "")" href="/Lecturer/Queries">Queries</a>
+                    }
+                    else
+                    {
+                        <a class="@(IsActive("/Student/CheckIn") ? "active" : "")" href="/Student/CheckIn">Check in</a>
+                        <a class="@(IsActive("/Student/Attendance") || IsActive("/Student/Query") ? "active" : "")" href="/Student/Attendance">My attendance</a>
+                    }
+                </span>
                 <form method="post" asp-page="/Account/Logout" class="inline-form">
                     <button type="submit" class="link-button">Sign out</button>
                 </form>

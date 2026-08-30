@@ -4,7 +4,7 @@
 
 <div class="card" style="max-width:460px;margin:0 auto;">
     <h1>Query this session</h1>
-    <p style="color:#767b73;">
+    <p style="color:var(--muted);">
         @Model.Session?.Meeting?.Title — @Model.Session?.Date.ToString("d MMM yyyy")
     </p>
 
@@ -16,7 +16,7 @@
         </div>
         @if (!ModelState.IsValid)
         {
-            <div style="color:#e8641c;" asp-validation-summary="All"></div>
+            <div style="color:var(--red);" asp-validation-summary="All"></div>
         }
         <button class="btn" type="submit">Submit query</button>
     </form>
