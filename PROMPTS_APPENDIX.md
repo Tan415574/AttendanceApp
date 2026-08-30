@@ -143,7 +143,16 @@ from screenshots of the conversation, not an automated transcript pull.*
     system will calculate the attendance for each student and they will be able to
     loggin and see their attendance. and if the lecturer says start session the it
     must show the qr code screen`
+32. *(2026-08-30, 18:00)* `sign up and sign i doesnt work anymore`
+33. *(18:00)* `TAKE OUT THAT IMPORT HISTORY` *(interrupting the sign-in
+    investigation to remove the standalone ImportHistory page immediately)*
+34. *(18:07)* `oh my word no, please just ask me exactly what i want. i want 1
+    single import button where a csv file can be inputted. the file has multiple
+    different days attendance`
+35. *(18:08)* answered clarifying questions: sign-in was confirmed working (stale
+    browser tab), and the import button should sit directly on the landing page,
+    not a separate page
 
 ---
 
-**Total prompts across all sessions: 34** (3 in Session 0, 31 in Sessions 1–3)
+**Total prompts across all sessions: 38** (3 in Session 0, 35 in Sessions 1–3)

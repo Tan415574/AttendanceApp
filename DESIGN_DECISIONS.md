@@ -138,19 +138,22 @@ for this session" a single query.
 name/number as leading columns, one column per date, `1`/`0` per cell) and unpivots it
 into `MeetingSession` + `AttendanceRecord` rows.
 
-**Standalone entry point, not gated behind creating a meeting first.** The first
-version only let a lecturer import into a `Meeting` they'd already manually created via
-the "New meeting" form — import was a link on an existing meeting's row. That doesn't
-match how this is actually used: a lecturer's real workflow is "I have a spreadsheet of
-attendance from before I started using this app; I want to bring all of it in as one
-action, covering every session and every student in the sheet, before I've necessarily
-set up anything else." Requiring a meeting to exist first, with its own title/type/
-recurrence, before you could even upload the file that logically defines those sessions
-was backwards. Fixed with a standalone `Pages/Lecturer/ImportHistory` page reachable
-straight from the lecturer's landing page — it creates its own `Meeting` container
-automatically (from a course name the lecturer types in) and runs the same importer.
-The original per-meeting import page still exists for adding more history to a course
-that's already set up.
+**One button, directly on the landing page — took two iterations to get right.** The
+first version only let a lecturer import into a `Meeting` they'd already manually
+created — import was a link on an existing meeting's row, requiring a title/type/
+recurrence to be set up before you could even upload the file that logically defines
+those sessions. Backwards for the actual workflow: bring in a whole spreadsheet of
+attendance from before this app existed, in one action, before setting up anything
+else.
+
+First fix went to a separate `/Lecturer/ImportHistory` page (course name + type +
+file). Still wrong — the developer's explicit call was one file picker and one button,
+sitting directly on `Meetings/Index` (the page a lecturer lands on immediately after
+signing in), no separate page and no extra fields to fill in first. `IndexModel.
+OnPostImportAsync` now creates the container `Meeting` automatically (titled from the
+CSV's filename) behind the scenes — invisible to the lecturer, who just picks a file
+and clicks one button. The original per-meeting import link still exists for adding
+more history to a course that's already set up.
 
 **Format decision — CSV, not native `.xlsx`.** The importer reads CSV (auto-detecting
 `,` vs `;` since exports vary by locale/Excel region settings) rather than parsing the

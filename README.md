@@ -38,20 +38,23 @@ The app auto-creates the "Lecturer" and "Student" Identity roles on first run
 - Lecturer query resolution: accept (flips to Present) / reject
   (`Pages/Lecturer/Queries.*`)
 - Attendance-per-lecture bar graph (Chart.js) (`Pages/Lecturer/Overview.*`)
-- Historical attendance import: upload a **CSV** (wide format, one column per date)
-  and it's unpivoted into `MeetingSession`/`AttendanceRecord` rows per student per
-  date, with an upsert-on-reimport policy that never overwrites an open dispute
-  (`Services/AttendanceImportService.cs`). Two entry points: a standalone one-button
-  flow for bringing in an entire historical spreadsheet before you've created any
-  meetings at all (`Pages/Lecturer/ImportHistory.*` — creates its own course
-  container automatically), and a per-meeting one for adding more history to a
-  course you've already set up (`Pages/Lecturer/Meetings/Import.*`). A student
-  number the import doesn't recognise gets a placeholder account (no password)
-  rather than being skipped, so historical data for students who haven't signed up
-  yet isn't lost — the first real registration with that student number claims the
-  placeholder and inherits its history (`Pages/Account/Register.cshtml.cs`, see
-  `ApplicationUser.IsPlaceholder`). Note: the brief asks for "an excel spreadsheet"
-  and this reads CSV, not native `.xlsx` — confirm that's an acceptable
+- Historical attendance import: one file picker and one "Import past attendance"
+  button, sitting directly on `Meetings/Index` — the page a lecturer lands on
+  immediately after signing in (`IndexModel.OnPostImportAsync`). Upload a **CSV**
+  (wide format, one column per date) and every date column is unpivoted into
+  `MeetingSession`/`AttendanceRecord` rows per student per date in one shot
+  (`Services/AttendanceImportService.cs`), with an upsert-on-reimport policy that
+  never overwrites an open dispute. A container `Meeting` is created automatically
+  (titled from the CSV's filename) — invisible to the lecturer, who never has to set
+  one up first. A student number the import doesn't recognise gets a placeholder
+  account (no password) rather than being skipped, so historical data for students
+  who haven't signed up yet isn't lost — the first real registration with that
+  student number claims the placeholder and inherits its history
+  (`Pages/Account/Register.cshtml.cs`, see `ApplicationUser.IsPlaceholder`). The
+  original per-meeting import page (`Pages/Lecturer/Meetings/Import.*`) still exists
+  for adding more history to a course that's already set up. Note: the brief asks
+  for "an excel spreadsheet" and this reads CSV, not native `.xlsx` — confirm that's
+  an acceptable
   interpretation before submitting, or add real `.xlsx` parsing.
 
 **Not built — deliberately left, per the case study's "AI shouldn't make your
