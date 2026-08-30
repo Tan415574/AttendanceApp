@@ -234,7 +234,32 @@ These were left unbuilt as conscious scope decisions, not oversights:
   `Program.cs`. Acceptable for a one-week assignment demo; would need revisiting for a
   production rollout since account recovery has no path currently.
 
-## 9. AI's role in this build
+## 9. Visual reskin — dark theme, per developer-supplied reference
+
+The original pastel-green "health app" look (§1, `ORIGINAL_SPEC.md`) was replaced with
+a dark theme matching a reference image the developer provided (a dark fintech
+dashboard: near-black background, glassy cards, gradient hero tiles, colorful accent
+palette, pill-shaped segmented nav). This was a deliberate, developer-directed
+aesthetic change, not an AI-initiated redesign — confirmed scope up front (dark theme
+everywhere including auth pages, palette derived from the reference image, animation
+work scoped to a few signature moments, fintech-specific *content* like wallet/icon
+imagery explicitly not copied — only the visual language) before any code changed. See
+`PROMPTS_APPENDIX.md` for the exact request and `RESKIN_PLAN.md` for the full plan
+approved before implementation (including one deviation made during execution, noted
+at the top of that file).
+
+**No functional change.** Same routes, same forms, same validation, same SignalR/
+matter.js board mechanics, same Overview calculation rules — this pass only touched
+`site.css`, `_Layout.cshtml`'s nav markup, the 8-color palette in `board.js`/
+`AvatarAssigner.cs` (colors only, shapes and physics untouched), and inline colors on
+9 pages that had hardcoded light-theme hex values bypassing the CSS variables.
+
+**Signature animations, not motion everywhere.** Per the confirmed scope: a staggered
+card fade/slide-in on page load, a vanilla-JS count-up on the Overview snapshot tiles,
+and tuned Chart.js entrance easing — chosen because Overview is the page most people
+will actually watch load. Everything respects `prefers-reduced-motion`.
+
+## 10. AI's role in this build
 
 AI (Claude, via Claude Code) was used to accelerate implementation of decisions made
 above — generating boilerplate, wiring EF Core relationships, and implementing the
