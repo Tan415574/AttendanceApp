@@ -102,6 +102,23 @@ identical on the board. Acceptable since the board is a live-glance tool, not th
 attendance record of truth — the actual record is the `AttendanceRecord` row, which is
 unambiguous.
 
+**"Start meeting" always means today — revised after real use.** The first version
+picked the session to start by looking up a `MeetingSession` matching today's date, and
+if none existed, fell back to whatever the meeting's *originally planned* recurrence
+said was next — sometimes days away — with no indication on the button of which date it
+actually was. A lecturer clicking "Start meeting" could open the wrong day's session
+without any warning, and if a meeting's planned schedule had already fully lapsed, the
+board just refused to start anything at all ("No session scheduled").
+
+Tested this directly and it broke the obvious use case: a lecturer showing up to
+actually run a class should always be able to hit "Start meeting" and get today's QR
+code, independent of whatever recurrence pattern was sketched out when the meeting was
+first created. Fixed by decoupling "starting a session" from the meeting's planned
+recurrence entirely — `BoardModel` now finds-or-creates *today's* `MeetingSession` for
+the meeting being started, unconditionally. The originally-planned recurrence dates
+still matter for the calendar/attendance history, but no longer gate whether a lecturer
+can start a live session today.
+
 ## 5. Query / dispute workflow
 
 A student who was marked absent (or not marked at all) can raise a query against a
@@ -120,6 +137,20 @@ for this session" a single query.
 `AttendanceImportService.cs` parses a wide-format legacy spreadsheet (student
 name/number as leading columns, one column per date, `1`/`0` per cell) and unpivots it
 into `MeetingSession` + `AttendanceRecord` rows.
+
+**Standalone entry point, not gated behind creating a meeting first.** The first
+version only let a lecturer import into a `Meeting` they'd already manually created via
+the "New meeting" form — import was a link on an existing meeting's row. That doesn't
+match how this is actually used: a lecturer's real workflow is "I have a spreadsheet of
+attendance from before I started using this app; I want to bring all of it in as one
+action, covering every session and every student in the sheet, before I've necessarily
+set up anything else." Requiring a meeting to exist first, with its own title/type/
+recurrence, before you could even upload the file that logically defines those sessions
+was backwards. Fixed with a standalone `Pages/Lecturer/ImportHistory` page reachable
+straight from the lecturer's landing page — it creates its own `Meeting` container
+automatically (from a course name the lecturer types in) and runs the same importer.
+The original per-meeting import page still exists for adding more history to a course
+that's already set up.
 
 **Format decision — CSV, not native `.xlsx`.** The importer reads CSV (auto-detecting
 `,` vs `;` since exports vary by locale/Excel region settings) rather than parsing the

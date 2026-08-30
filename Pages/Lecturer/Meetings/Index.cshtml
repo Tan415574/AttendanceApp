@@ -5,7 +5,10 @@
 <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
         <h1>My meetings</h1>
-        <a class="btn" href="/Lecturer/Meetings/Create">+ New meeting</a>
+        <div>
+            <a class="btn secondary" href="/Lecturer/ImportHistory">Import past attendance</a>
+            <a class="btn" href="/Lecturer/Meetings/Create">+ New meeting</a>
+        </div>
     </div>
 
     @if (!Model.Meetings.Any())

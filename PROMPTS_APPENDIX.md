@@ -136,7 +136,14 @@ from screenshots of the conversation, not an automated transcript pull.*
     the start session it just says not today`
 30. *(12:52)* selected "Auto-create student accounts on import" when asked how to fix
     the import gap
+31. *(13:10)* `okay no you are still doing this wrong, 1 button for input past
+    attendance not for every session it is overall attendance which has different
+    sessions and students dates it ist per session. when a lecturer signs up they
+    would input the data they have before they starrted using the app then the
+    system will calculate the attendance for each student and they will be able to
+    loggin and see their attendance. and if the lecturer says start session the it
+    must show the qr code screen`
 
 ---
 
-**Total prompts across all sessions: 33** (3 in Session 0, 30 in Sessions 1–3)
+**Total prompts across all sessions: 34** (3 in Session 0, 31 in Sessions 1–3)
