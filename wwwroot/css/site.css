@@ -79,11 +79,7 @@ a { color: var(--accent); }
 .page > .card:nth-of-type(4) { animation-delay: 0.18s; }
 .page > .card:nth-of-type(5) { animation-delay: 0.24s; }
 .page > .card:nth-of-type(n+6) { animation-delay: 0.28s; }
-.charts-grid .card { animation: fadeInUp 0.5s var(--ease-out) both; }
-.charts-grid .card:nth-child(1) { animation-delay: 0.2s; }
-.charts-grid .card:nth-child(2) { animation-delay: 0.26s; }
-.charts-grid .card:nth-child(3) { animation-delay: 0.32s; }
-.charts-grid .card:nth-child(4) { animation-delay: 0.38s; }
+.dash-row .card, .dash-col .card { animation: fadeInUp 0.5s var(--ease-out) both; animation-delay: 0.2s; }
 
 .topbar {
   display: flex;
@@ -150,7 +146,7 @@ a { color: var(--accent); }
 }
 .link-button:hover { color: var(--red); }
 
-.page { max-width: 960px; margin: 0 auto; padding: 32px 20px 60px; }
+.page { max-width: 1160px; margin: 0 auto; padding: 32px 20px 60px; }
 
 .card {
   background: var(--card);
@@ -325,14 +321,25 @@ a.cal-cell:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(0,0,0,0.3
 .snapshot-tile.alert .value { color: var(--red); }
 .snapshot-tile.alert.zero .value { color: var(--accent); }
 
-.charts-grid {
+.dash-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.3fr 1fr;
   gap: 20px;
+  align-items: start;
 }
-@media (max-width: 720px) {
+.dash-col { display: flex; flex-direction: column; gap: 20px; }
+.dash-row .card, .dash-col .card { margin-bottom: 0; }
+.scroll-panel { max-height: 480px; overflow-y: auto; }
+.scroll-panel::-webkit-scrollbar { width: 8px; }
+.scroll-panel::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+.scroll-panel-table { max-height: 560px; overflow-y: auto; }
+.scroll-panel-table table thead th {
+  position: sticky; top: 0; background: var(--card); z-index: 1;
+}
+
+@media (max-width: 900px) {
   .snapshot-grid { grid-template-columns: repeat(2, 1fr); }
-  .charts-grid { grid-template-columns: 1fr; }
+  .dash-row { grid-template-columns: 1fr; }
 }
 
 .attention-row {

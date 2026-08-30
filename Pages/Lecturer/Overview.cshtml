@@ -40,98 +40,106 @@ else
         </div>
     </div>
 
-    <div class="card">
-        <h2>Students who need attention</h2>
-        @if (!Model.NeedAttention.Any())
-        {
-            <p style="color:var(--muted);">Nobody's flagged — everyone's above 75% with no active miss streak.</p>
-        }
-        else
-        {
-            foreach (var s in Model.NeedAttention)
+    <div class="dash-row">
+        <div class="card">
+            <h2>Students who need attention</h2>
+            @if (!Model.NeedAttention.Any())
             {
-                <div class="attention-row">
-                    <div>
-                        <span class="attention-name">@s.Name</span>
-                        <span class="attention-detail">(@s.StudentNumber)</span>
-                        <span class="badge @(s.Critical ? "critical" : "amber")">@(s.Critical ? "Critical" : "Watch")</span>
-                    </div>
-                    <div class="attention-detail" style="text-align:right;">
-                        <div><strong>@s.Percent.ToString("0.#")%</strong></div>
-                        <div>
-                            @if (s.MissedStreak > 0)
-                            {
-                                @($"Missed last {s.MissedStreak} in a row")
-                            }
-                            else if (s.LastAttended is { } d)
-                            {
-                                @($"Last attended {d:d MMM yyyy}")
-                            }
-                            else
-                            {
-                                @("Never attended")
-                            }
+                <p style="color:var(--muted);">Nobody's flagged — everyone's above 75% with no active miss streak.</p>
+            }
+            else
+            {
+                <div class="scroll-panel">
+                    @foreach (var s in Model.NeedAttention)
+                    {
+                        <div class="attention-row">
+                            <div>
+                                <span class="attention-name">@s.Name</span>
+                                <span class="attention-detail">(@s.StudentNumber)</span>
+                                <span class="badge @(s.Critical ? "critical" : "amber")">@(s.Critical ? "Critical" : "Watch")</span>
+                            </div>
+                            <div class="attention-detail" style="text-align:right;">
+                                <div><strong>@s.Percent.ToString("0.#")%</strong></div>
+                                <div>
+                                    @if (s.MissedStreak > 0)
+                                    {
+                                        @($"Missed last {s.MissedStreak} in a row")
+                                    }
+                                    else if (s.LastAttended is { } d)
+                                    {
+                                        @($"Last attended {d:d MMM yyyy}")
+                                    }
+                                    else
+                                    {
+                                        @("Never attended")
+                                    }
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             }
-        }
-    </div>
-
-    <div class="charts-grid">
-        <div class="card">
-            <h2>Attendance trend</h2>
-            <canvas id="trendChart" height="180"></canvas>
         </div>
         <div class="card">
             <h2>Attendance distribution</h2>
-            <canvas id="distributionChart" height="180"></canvas>
+            <canvas id="distributionChart" height="220"></canvas>
         </div>
+    </div>
+
+    <div class="dash-row">
         <div class="card">
-            <h2>By session type</h2>
-            <canvas id="typeChart" height="180"></canvas>
+            <h2>Attendance trend</h2>
+            <canvas id="trendChart" height="220"></canvas>
         </div>
-        <div class="card">
-            <h2>By day of week</h2>
-            <canvas id="dowChart" height="180"></canvas>
+        <div class="dash-col">
+            <div class="card">
+                <h2>By session type</h2>
+                <canvas id="typeChart" height="140"></canvas>
+            </div>
+            <div class="card">
+                <h2>By day of week</h2>
+                <canvas id="dowChart" height="140"></canvas>
+            </div>
         </div>
     </div>
 
     <div class="card">
         <h2>All students</h2>
         <p style="color:var(--muted);font-size:0.85rem;">Tap a row to expand their session history.</p>
-        <table class="student-table">
-            <thead>
-                <tr><th>Student</th><th>Number</th><th>Attendance</th><th>Present</th></tr>
-            </thead>
-            <tbody>
-                @for (int i = 0; i < Model.Students.Count; i++)
-                {
-                    var s = Model.Students[i];
-                    <tr class="student-row" data-target="hist-@i">
-                        <td>@s.Name</td>
-                        <td>@s.StudentNumber</td>
-                        <td><span class="pct-pill @BandClass(s.Percent)">@s.Percent.ToString("0.#")%</span></td>
-                        <td>@s.Present / @s.Total</td>
-                    </tr>
-                    <tr class="history-row" id="hist-@i">
-                        <td colspan="4">
-                            <ul class="history-list">
-                                @foreach (var h in s.History)
-                                {
-                                    <li>
-                                        <span>@h.Date.ToString("d MMM yyyy") — @h.MeetingTitle</span>
-                                        <span style="color:@(h.Present ? "var(--accent)" : "var(--red)");font-weight:600;">
-                                            @(h.Present ? "Present" : "Absent")
-                                        </span>
-                                    </li>
-                                }
-                            </ul>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="scroll-panel-table">
+            <table class="student-table">
+                <thead>
+                    <tr><th>Student</th><th>Number</th><th>Attendance</th><th>Present</th></tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Students.Count; i++)
+                    {
+                        var s = Model.Students[i];
+                        <tr class="student-row" data-target="hist-@i">
+                            <td>@s.Name</td>
+                            <td>@s.StudentNumber</td>
+                            <td><span class="pct-pill @BandClass(s.Percent)">@s.Percent.ToString("0.#")%</span></td>
+                            <td>@s.Present / @s.Total</td>
+                        </tr>
+                        <tr class="history-row" id="hist-@i">
+                            <td colspan="4">
+                                <ul class="history-list">
+                                    @foreach (var h in s.History)
+                                    {
+                                        <li>
+                                            <span>@h.Date.ToString("d MMM yyyy") — @h.MeetingTitle</span>
+                                            <span style="color:@(h.Present ? "var(--accent)" : "var(--red)");font-weight:600;">
+                                                @(h.Present ? "Present" : "Absent")
+                                            </span>
+                                        </li>
+                                    }
+                                </ul>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
