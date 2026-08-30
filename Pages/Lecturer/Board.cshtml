@@ -9,16 +9,28 @@
         <p style="color:#767b73;">@Model.Meeting.Description</p>
     }
 
+    @{ var today = DateOnly.FromDateTime(DateTime.Today); }
     @if (Model.TodaySession is null)
     {
-        <p>No session scheduled for today.</p>
+        <p>No session scheduled for today or any later date — this meeting's occurrences have all passed.</p>
     }
     else if (!Model.TodaySession.IsOpen)
     {
-        <form method="post" asp-page-handler="Start">
-            <input type="hidden" name="sessionId" value="@Model.TodaySession.Id" />
-            <button class="btn" type="submit">Start meeting</button>
-        </form>
+        @if (Model.TodaySession.Date == today)
+        {
+            <form method="post" asp-page-handler="Start">
+                <input type="hidden" name="sessionId" value="@Model.TodaySession.Id" />
+                <button class="btn" type="submit">Start meeting</button>
+            </form>
+        }
+        else
+        {
+            <p>No session scheduled for today. The next one is <strong>@Model.TodaySession.Date.ToString("d MMM yyyy")</strong>.</p>
+            <form method="post" asp-page-handler="Start">
+                <input type="hidden" name="sessionId" value="@Model.TodaySession.Id" />
+                <button class="btn secondary" type="submit">Start that session early (@Model.TodaySession.Date.ToString("d MMM"))</button>
+            </form>
+        }
     }
     else
     {
