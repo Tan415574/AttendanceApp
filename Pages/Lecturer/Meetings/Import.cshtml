@@ -13,7 +13,10 @@
         absent in each cell. Re-uploading overwrites: a <code>1</code> cell sets that
         student/date to present, a <code>0</code> cell clears any existing present record —
         except where a student has an open query on that session, which is left alone and
-        reported instead of being overwritten.
+        reported instead of being overwritten. A student number that isn't registered yet
+        gets a placeholder account (no password) so their history isn't lost — it becomes a
+        normal account automatically the first time they sign up with that same student
+        number.
     </p>
 
     @if (Model.ErrorMessage is not null)
@@ -37,7 +40,7 @@
                 <li>@r.SessionsCreated new session(s) created for date columns that didn't exist yet</li>
                 <li>@r.RecordsMarkedPresent cell(s) marked present</li>
                 <li>@r.RecordsMarkedAbsent existing record(s) cleared back to absent</li>
-                <li>@r.UnknownStudents row(s) skipped — student number not registered</li>
+                <li>@r.PlaceholderAccountsCreated placeholder student account(s) created for unregistered student numbers</li>
                 <li>@r.InvalidCells cell(s) skipped — value wasn't <code>1</code> or <code>0</code></li>
                 <li>@r.ConflictsSkipped cell(s) left untouched — student has an open query on that session</li>
             </ul>

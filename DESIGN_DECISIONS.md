@@ -136,6 +136,24 @@ consistent). The one exception: a record with an open student query is left unto
 and reported back to the lecturer, so a bulk historical import can never silently
 overwrite an active dispute the lecturer hasn't looked at yet.
 
+**Unregistered students — placeholder accounts, not skipped rows.** The first version
+of this importer skipped any row whose student number had no matching account. Tested
+against a real 104-row legacy sheet, that meant 101 rows were silently dropped — nobody
+had signed up on the new app yet, which is exactly the situation a legacy import exists
+for. Skipping them made the feature pass a smoke test but fail the actual use case.
+
+Fixed by having the importer create a placeholder `ApplicationUser` (`IsPlaceholder =
+true`, no password, `UserName` set to the student number since there's no email in the
+sheet) for any unrecognised student number, instead of skipping. Their imported history
+attaches to that account immediately. When a real student later registers with the same
+student number, `Register.cshtml.cs` checks for a matching placeholder first and
+*claims* it — attaches their real password/email to that same row — rather than
+creating a second, disconnected account that would leave the imported history orphaned
+under an account nobody can log into. Trade-off accepted: a typo'd student number at
+either import or registration time won't match, and the placeholder just sits unclaimed
+— no different in effect from a typo anywhere else in the system, and not worth
+building fuzzy-matching for.
+
 ## 7. Deliberately out of scope
 
 These were left unbuilt as conscious scope decisions, not oversights:

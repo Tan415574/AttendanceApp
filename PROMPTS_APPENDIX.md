@@ -130,7 +130,13 @@ from screenshots of the conversation, not an automated transcript pull.*
 27. *(08:22)* `yes do both` *(requesting both UML artefacts — class diagram and
     sequence diagram)*
 28. *(09:11)* `run the app`
+29. *(2026-08-30, 12:31)* `okay so there is an issue, the import is only 1 button its
+    not every single. look at thatcsv file i updated it needs to be able to take that
+    and workout that persons attendace with the calendr. there is also an issue with
+    the start session it just says not today`
+30. *(12:52)* selected "Auto-create student accounts on import" when asked how to fix
+    the import gap
 
 ---
 
-**Total prompts across all sessions: 31** (3 in Session 0, 28 in Sessions 1–3)
+**Total prompts across all sessions: 33** (3 in Session 0, 30 in Sessions 1–3)

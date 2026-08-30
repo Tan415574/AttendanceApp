@@ -4,6 +4,7 @@ using AttendanceApp.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceApp.Pages.Account;
 
@@ -39,6 +40,38 @@ public class RegisterModel : PageModel
 
         if (!ModelState.IsValid)
             return Page();
+
+        // A lecturer's legacy-attendance import may have already created a placeholder
+        // account for this student number (AttendanceImportService.IsPlaceholder) before
+        // they ever signed up. Claim it — attach real credentials to that same row — rather
+        // than creating a second, disconnected account that would orphan their imported
+        // history.
+        var placeholder = Input.Role == "Student"
+            ? await _userManager.Users.FirstOrDefaultAsync(u => u.StudentNumber == Input.StudentNumber && u.IsPlaceholder)
+            : null;
+
+        if (placeholder is not null)
+        {
+            var passwordResult = await _userManager.AddPasswordAsync(placeholder, Input.Password);
+            if (!passwordResult.Succeeded)
+            {
+                foreach (var error in passwordResult.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
+                return Page();
+            }
+
+            placeholder.FullName = Input.FullName;
+            placeholder.IsPlaceholder = false;
+            await _userManager.SetUserNameAsync(placeholder, Input.Email);
+            await _userManager.SetEmailAsync(placeholder, Input.Email);
+            await _userManager.UpdateAsync(placeholder);
+
+            if (!await _userManager.IsInRoleAsync(placeholder, "Student"))
+                await _userManager.AddToRoleAsync(placeholder, "Student");
+
+            await _signInManager.SignInAsync(placeholder, isPersistent: true);
+            return RedirectToPage("/Student/CheckIn");
+        }
 
         var user = new ApplicationUser
         {

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using AttendanceApp.Data;
 using AttendanceApp.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceApp.Services;
@@ -15,6 +16,10 @@ namespace AttendanceApp.Services;
 // (absence is represented by the lack of a record, matching how the rest of the app treats it).
 // The one exception: a record with an open student query is left untouched and reported, so a
 // bulk historical import can never silently steamroll an active dispute.
+//
+// Unrecognized student numbers create a placeholder ApplicationUser (see IsPlaceholder) rather
+// than being skipped — a legacy import happens precisely because those students haven't signed
+// up on this app yet, so refusing to import their history until they do would defeat the point.
 public class AttendanceImportService
 {
     private static readonly string[] DateFormats =
@@ -23,10 +28,12 @@ public class AttendanceImportService
     };
 
     private readonly ApplicationDbContext _db;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public AttendanceImportService(ApplicationDbContext db)
+    public AttendanceImportService(ApplicationDbContext db, UserManager<ApplicationUser> userManager)
     {
         _db = db;
+        _userManager = userManager;
     }
 
     public async Task<ImportResult> ImportAsync(int meetingId, Stream csvStream)
@@ -106,8 +113,8 @@ public class AttendanceImportService
             .Where(a => sessionIds.Contains(a.MeetingSessionId))
             .ToDictionaryAsync(a => (a.MeetingSessionId, a.StudentId));
 
-        int present = 0, absentRemoved = 0, unknownStudents = 0, invalidCells = 0, conflictsSkipped = 0;
-        var unknownStudentMessages = new List<string>();
+        int present = 0, absentRemoved = 0, placeholdersCreated = 0, invalidCells = 0, conflictsSkipped = 0;
+        var placeholderFailureMessages = new List<string>();
 
         for (int row = 1; row < lines.Count; row++)
         {
@@ -120,10 +127,28 @@ public class AttendanceImportService
 
             if (!studentIdByNumber.TryGetValue(studentNo, out var studentId))
             {
-                unknownStudents++;
-                if (unknownStudentMessages.Count < 20)
-                    unknownStudentMessages.Add($"Row {row + 1}: student number \"{studentNo}\" ({studentName}) isn't registered — row skipped.");
-                continue;
+                // Not registered yet — create a placeholder account so this student's history
+                // isn't lost. A real signup with this student number later "claims" it
+                // (Pages/Account/Register.cshtml.cs) instead of starting a blank new account.
+                var placeholder = new ApplicationUser
+                {
+                    UserName = studentNo,
+                    FullName = studentName.Length > 0 ? studentName : studentNo,
+                    StudentNumber = studentNo,
+                    AvatarIndex = AvatarAssigner.AssignIndex(studentNo),
+                    IsPlaceholder = true
+                };
+                var createResult = await _userManager.CreateAsync(placeholder);
+                if (!createResult.Succeeded)
+                {
+                    if (placeholderFailureMessages.Count < 20)
+                        placeholderFailureMessages.Add($"Row {row + 1}: couldn't create an account for student number \"{studentNo}\" ({studentName}) — {string.Join(", ", createResult.Errors.Select(e => e.Description))}. Row skipped.");
+                    continue;
+                }
+                await _userManager.AddToRoleAsync(placeholder, "Student");
+                studentIdByNumber[studentNo] = placeholder.Id;
+                studentId = placeholder.Id;
+                placeholdersCreated++;
             }
 
             foreach (var (col, date) in dateColumns)
@@ -182,11 +207,9 @@ public class AttendanceImportService
 
         await _db.SaveChangesAsync();
 
-        messages.AddRange(unknownStudentMessages);
-        if (unknownStudents > unknownStudentMessages.Count)
-            messages.Add($"...and {unknownStudents - unknownStudentMessages.Count} more unregistered student number(s).");
+        messages.AddRange(placeholderFailureMessages);
 
-        return new ImportResult(sessionsCreated, present, absentRemoved, unknownStudents, invalidCells, conflictsSkipped, messages);
+        return new ImportResult(sessionsCreated, present, absentRemoved, placeholdersCreated, invalidCells, conflictsSkipped, messages);
     }
 
     private static bool TryParseDate(string text, out DateOnly date)
@@ -232,7 +255,7 @@ public record ImportResult(
     int SessionsCreated,
     int RecordsMarkedPresent,
     int RecordsMarkedAbsent,
-    int UnknownStudents,
+    int PlaceholderAccountsCreated,
     int InvalidCells,
     int ConflictsSkipped,
     List<string> Messages);

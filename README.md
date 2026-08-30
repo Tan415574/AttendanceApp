@@ -42,9 +42,13 @@ The app auto-creates the "Lecturer" and "Student" Identity roles on first run
   and it's unpivoted into `MeetingSession`/`AttendanceRecord` rows, with an
   upsert-on-reimport policy that never overwrites an open dispute
   (`Pages/Lecturer/Meetings/Import.*`, `Services/AttendanceImportService.cs`).
-  Note: the brief asks for "an excel spreadsheet" and this reads CSV, not native
-  `.xlsx` — confirm that's an acceptable interpretation before submitting, or add
-  real `.xlsx` parsing.
+  A student number the import doesn't recognise gets a placeholder account (no
+  password) rather than being skipped, so historical data for students who haven't
+  signed up yet isn't lost — the first real registration with that student number
+  claims the placeholder and inherits its history (`Pages/Account/Register.cshtml.cs`,
+  see `ApplicationUser.IsPlaceholder`). Note: the brief asks for "an excel
+  spreadsheet" and this reads CSV, not native `.xlsx` — confirm that's an acceptable
+  interpretation before submitting, or add real `.xlsx` parsing.
 
 **Not built — deliberately left, per the case study's "AI shouldn't make your
 decisions" instruction:**
