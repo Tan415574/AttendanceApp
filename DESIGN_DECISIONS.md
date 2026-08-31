@@ -308,6 +308,18 @@ capped scrollable panels (with a sticky table header) instead of unbounded lists
 Same information, arranged in parts: the page dropped from 9449px to 2294px tall at
 1600px width with nothing removed, only reflowed.
 
+**Follow-up: a real landing page at `/`.** The root route previously did nothing but
+redirect anonymous visitors straight to sign-in — there was no page that explained
+what the app does or showed it off. Requested directly, with an explicit ask to
+feature the physics drop-in board since it's the app's most distinctive visual.
+`IndexModel` now only redirects *signed-in* users; anonymous visitors get a hero
+section, a live self-driving demo of the actual check-in board
+(`wwwroot/js/landing-demo.js` — the same matter.js engine and avatar palette as the
+real board, just spawning avatars on a timer instead of real SignalR events, so
+nobody has to sign up to see the feature that sells the app), a feature grid, and a
+final CTA. Every feature described on the page is something that actually exists —
+no marketing claims ahead of the build.
+
 ## 10. AI's role in this build
 
 AI (Claude, via Claude Code) was used to accelerate implementation of decisions made
