@@ -6,6 +6,21 @@
 }
 
 <div class="page-full">
+    <div class="cursor-mascot" aria-hidden="true">
+        <svg viewBox="0 0 140 140" width="100%" height="100%">
+            <ellipse cx="70" cy="76" rx="58" ry="52" fill="var(--coral)" stroke="var(--coral-dark)" stroke-width="3" />
+            <g class="mascot-eye">
+                <circle cx="49" cy="68" r="14" fill="white" />
+                <circle class="pupil" cx="49" cy="68" data-cx="49" data-cy="68" r="7" fill="#22201C" />
+            </g>
+            <g class="mascot-eye">
+                <circle cx="91" cy="68" r="14" fill="white" />
+                <circle class="pupil" cx="91" cy="68" data-cx="91" data-cy="68" r="7" fill="#22201C" />
+            </g>
+            <path d="M46 96 Q70 112 94 96" stroke="var(--coral-dark)" stroke-width="6" fill="none" stroke-linecap="round" />
+        </svg>
+    </div>
+
     <header class="landing-header">
         <a class="auth-hero-brand" href="/">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -35,8 +50,8 @@
             </div>
         </div>
         <div class="landing-demo">
-            <div class="board-canvas-holder" id="landingCanvas">
-                <div class="board-count" id="landingCount">0 checked in</div>
+            <div class="board-canvas-holder" data-landing-demo>
+                <div class="board-count">0 checked in</div>
             </div>
             <p class="landing-demo-caption">This is the actual live check-in board — students drop in as animated avatars the moment they scan.</p>
         </div>
@@ -112,6 +127,14 @@
         </div>
     </section>
 
+    <section class="landing-section landing-live-demo">
+        <h2>Watch the room fill up</h2>
+        <p class="landing-section-sub">This is the exact same board lecturers see live — every check-in drops in, in real time.</p>
+        <div class="board-canvas-holder" data-landing-demo data-blob-radius="30" data-spawn-delay="900">
+            <div class="board-count">0 checked in</div>
+        </div>
+    </section>
+
     <section class="landing-final-cta">
         <h2>Stop chasing spreadsheets.</h2>
         <p>Set up your first session in under a minute.</p>
@@ -121,3 +144,4 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 <script src="~/js/landing-demo.js"></script>
+<script src="~/js/cursor-mascot.js"></script>

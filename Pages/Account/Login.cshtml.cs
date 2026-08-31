@@ -26,7 +26,18 @@ public class LoginModel : PageModel
         [Required] public string Password { get; set; } = string.Empty;
     }
 
-    public void OnGet() { }
+    public IActionResult OnGet()
+    {
+        if (_signInManager.IsSignedIn(User))
+        {
+            var isLecturer = User.IsInRole("Lecturer");
+            return isLecturer
+                ? RedirectToPage("/Lecturer/Meetings/Index")
+                : RedirectToPage("/Student/CheckIn");
+        }
+
+        return Page();
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {
