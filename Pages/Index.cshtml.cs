@@ -19,7 +19,7 @@ public class IndexModel : PageModel
     public IActionResult OnGet()
     {
         if (!_signInManager.IsSignedIn(User))
-            return RedirectToPage("/Account/Login");
+            return Page(); // anonymous visitors see the marketing landing page
 
         return User.IsInRole("Lecturer")
             ? RedirectToPage("/Lecturer/Meetings/Index")
