@@ -188,6 +188,26 @@ either import or registration time won't match, and the placeholder just sits un
 — no different in effect from a typo anywhere else in the system, and not worth
 building fuzzy-matching for.
 
+**Follow-up: the claim flow needed a guard against duplicate student numbers.**
+Re-verifying the claim flow end-to-end (asked directly: does imported data really
+reach the student calendar, not just assumed) surfaced a real gap: nothing stopped a
+*second* registration with a student number that already belonged to a real, claimed
+account — it silently created a disconnected duplicate with zero history instead of
+attaching to the existing one. Fixed by checking for an existing non-placeholder
+account with that student number before falling through to plain registration, and
+rejecting with a clear error ("an account already exists ... sign in instead") if
+found. This preserves the core guarantee the whole placeholder/claim mechanism exists
+for: a matching student number always means the same person's data, everywhere.
+
+**Follow-up: all-time class-average comparison on the student calendar.** Requested
+directly — a student should see their attendance against the class average, not just
+their own raw numbers. Added as its own all-time, system-wide stat (every meeting
+from every lecturer, same "combined pool" convention as the Overview dashboard and
+necessary here too since a student has no single lecturer to compare against),
+deliberately kept separate from the month-scoped calendar/tiles below it: a stable
+"how am I doing overall" number is more meaningful than one that resets every time
+the calendar is paged to a different month.
+
 ## 7. Attendance analytics dashboard (lecturer Overview)
 
 `Pages/Lecturer/Overview.cshtml(.cs)` replaces a single bar chart with a full

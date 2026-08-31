@@ -199,7 +199,12 @@ from screenshots of the conversation, not an automated transcript pull.*
 47. *(2026-08-30, 22:45)* `can you go through all the pages and make sure that fit
     properly if they desktop like the overivew should be i parts nit just scroll
     and under eachother`
+48. *(2026-08-31, 07:00)* `okay its important that you turn the stats imported into
+    usable data like if the student number matches the one in the sheet the data
+    for that peson updates everywhere even on student side like caleder needs to
+    see where they attended and missed and also add stats like their attendance
+    agaisnt the class average or some thing like that`
 
 ---
 
-**Total prompts across all sessions: 51** (3 in Session 0, 48 in Sessions 1–3)
+**Total prompts across all sessions: 52** (3 in Session 0, 49 in Sessions 1–3)
