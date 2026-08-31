@@ -73,6 +73,23 @@ public class RegisterModel : PageModel
             return RedirectToPage("/Student/CheckIn");
         }
 
+        // No placeholder to claim — but if this student number already belongs to a
+        // real (already-claimed) account, registering again would silently create a
+        // second, disconnected account under the same number. That would break the
+        // "matching student number = same person's data everywhere" guarantee the
+        // placeholder-claim flow exists for, so reject it with a clear message instead.
+        if (Input.Role == "Student")
+        {
+            var alreadyClaimed = await _userManager.Users
+                .AnyAsync(u => u.StudentNumber == Input.StudentNumber && !u.IsPlaceholder);
+            if (alreadyClaimed)
+            {
+                ModelState.AddModelError(nameof(Input.StudentNumber),
+                    "An account already exists for this student number. Sign in instead, or contact your lecturer if this is a mistake.");
+                return Page();
+            }
+        }
+
         var user = new ApplicationUser
         {
             UserName = Input.Email,

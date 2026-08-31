@@ -27,6 +27,13 @@ public class AttendanceModel : PageModel
     public int Month { get; set; }
     public int Year { get; set; }
 
+    // All-time, every meeting from every lecturer (no per-module enrolment yet, so a
+    // student has no single lecturer to scope against — same "combined pool" convention
+    // as the lecturer Overview dashboard; see DESIGN_DECISIONS.md).
+    public double MyOverallPercent { get; set; }
+    public double ClassAveragePercent { get; set; }
+    public int SessionsHeldAllTime { get; set; }
+
     public async Task OnGetAsync(int? year, int? month)
     {
         var studentId = _userManager.GetUserId(User)!;
@@ -69,6 +76,28 @@ public class AttendanceModel : PageModel
             {
                 if (present) PresentCount++; else AbsentCount++;
             }
+        }
+
+        // All-time comparison against the class average — separate from the month-scoped
+        // calendar/tiles above, since a single stable "how am I doing overall" number is
+        // more meaningful than one that resets every time you flip the calendar page.
+        var allHeldSessions = await _db.MeetingSessions.Where(s => s.Date <= today).ToListAsync();
+        SessionsHeldAllTime = allHeldSessions.Count;
+        var totalStudents = await _db.Users.CountAsync(u => u.StudentNumber != null);
+
+        if (SessionsHeldAllTime > 0 && totalStudents > 0)
+        {
+            var heldSessionIds = allHeldSessions.Select(s => s.Id).ToHashSet();
+            var allPresentRecords = await _db.AttendanceRecords
+                .Where(a => heldSessionIds.Contains(a.MeetingSessionId) && a.Status == AttendanceStatus.Present)
+                .Select(a => new { a.MeetingSessionId, a.StudentId })
+                .ToListAsync();
+
+            int myPresentAllTime = allPresentRecords.Count(r => r.StudentId == studentId);
+            MyOverallPercent = Math.Round(100.0 * myPresentAllTime / SessionsHeldAllTime, 1);
+
+            int totalPresentSlots = allPresentRecords.Count;
+            ClassAveragePercent = Math.Round(100.0 * totalPresentSlots / (SessionsHeldAllTime * (double)totalStudents), 1);
         }
     }
 }
