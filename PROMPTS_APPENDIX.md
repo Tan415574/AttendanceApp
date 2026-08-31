@@ -219,6 +219,11 @@ from screenshots of the conversation, not an automated transcript pull.*
     a mobile home screen with an eye-tracking mascot character] `THE SIGN IN WHEN YOU
     SAY ENTER GOES TO THE WELCOME BACK SIGN IN. CAN YOU ADD THE DROP IN STUFF ON THE
     LANDING PAGE LATER ON AND ADD A BIG CHARACTER THAT FOLLOWS THE CURSOR`
+53. *(2026-09-01, ~09:00)* `how do i see the landing page`
+54. *(2026-09-01, ~09:10)* `the import dont work, do a full logic test go through
+    entire program and make sure flow is correct and opens the right pages displayed.
+    do i properly and add different shapes and sized character to alot of the pages.
+    mulrtiple on a page`
 
 ---
 

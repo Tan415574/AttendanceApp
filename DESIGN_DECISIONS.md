@@ -208,6 +208,21 @@ deliberately kept separate from the month-scoped calendar/tiles below it: a stab
 "how am I doing overall" number is more meaningful than one that resets every time
 the calendar is paged to a different month.
 
+**Follow-up: re-uploading no longer duplicates the import.** The single-button
+importer (`Meetings/Index.OnPostImportAsync`) originally created a brand-new `Meeting`
+on *every* submit, titled from the uploaded filename. `AttendanceImportService`
+already upserts correctly *within* a given meeting (get-or-create session per date,
+replace existing records) — but that logic never got the chance to run, because a
+second upload of the same or a corrected file always got a fresh `meetingId`, so it
+just added a second, disconnected 26-session copy of everything instead of updating
+the first. Reported as "the import doesn't work" — the button visibly succeeded, so
+the failure only showed up as silently doubled stats across Overview and the student
+calendars, not as an error. Fixed by having the handler find-or-reuse one designated
+import meeting per lecturer, matched by a fixed `Description` sentinel rather than by
+title (so re-uploading a differently-named file still lands in the same place).
+Verified in isolation: importing the same file twice now reports 0 new sessions and 0
+new accounts on the second pass instead of doubling every number.
+
 ## 7. Attendance analytics dashboard (lecturer Overview)
 
 `Pages/Lecturer/Overview.cshtml(.cs)` replaces a single bar chart with a full
@@ -378,6 +393,30 @@ the mouse across the whole page, modeled directly on an eye-tracking mechanic in
 reference mockup the developer supplied (`pupil` elements offset toward the cursor,
 clamped to a max radius) — scoped to the landing page only, decorative, and a no-op
 under `prefers-reduced-motion`.
+
+**Follow-up: mascot characters spread across the app, not just the landing page.**
+Requested directly — "different shapes and sized character[s]" on "a lot of the
+pages," multiple per page. Rather than hand-drawing one-off SVGs per page, built a
+shared `_Mascot` partial (`Pages/_Mascot.cshtml`, backed by a small `MascotOptions`
+model) that renders one of three static silhouettes — circle, rounded square, or an
+asymmetric organic blob — with either face variant from the existing mascot
+vocabulary, at any size/color. Sprinkled 2-3 per page: a small one beside the page
+heading, a larger one in empty states (no meetings yet, no open queries, nothing on
+Overview) so those read as designed rather than broken/blank, and three floating in
+the auth-hero panel. This is a deliberately lighter-weight sibling to the canvas-drawn
+mascots in `board.js`/`landing-demo.js` — no JS, no physics, just static decorative
+SVG, appropriate for characters that just need to sit still and look friendly rather
+than drop and bounce.
+
+Two mistakes caught and fixed during the same pass, both from Razor's attribute
+quoting rather than the design itself: the object-initializer syntax
+(`new MascotOptions { Shape = "circle", ... }`) needs a *single*-quoted
+`model='@(...)'` attribute, because the double-quoted C# string literals inside it
+collide with a double-quoted HTML attribute and silently truncate the expression
+(caught immediately at build time — 572 compiler errors across every page that used
+the double-quoted form); and the first blob silhouette was too gentle a wobble to
+read as non-circular at the small sizes used next to headings, so it was redrawn with
+a more pronounced asymmetric outline after a side-by-side screenshot comparison.
 
 ## 10. AI's role in this build
 
