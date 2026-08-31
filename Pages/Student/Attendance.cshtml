@@ -20,17 +20,17 @@
                 <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;color:var(--muted);">@Model.ClassAveragePercent.ToString("0.#")%</div>
                 <div style="color:var(--muted);font-size:0.85rem;">Class average</div>
             </div>
-            <span class="badge" style="background:@(isAbove ? "rgba(142,240,127,0.15)" : "rgba(255,122,107,0.15)");color:@(isAbove ? "var(--accent)" : "var(--red)");font-size:0.85rem;">
+            <span class="badge" style="background:@(isAbove ? "#E4F7E6" : "#FFE7F0");color:@(isAbove ? "var(--grass-dark)" : "var(--bubblegum-dark)");font-size:0.85rem;">
                 @(isAbove ? "+" : "")@diff.ToString("0.#") pts @(isAbove ? "above" : "below") average
             </span>
         </div>
         <div style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;">You</div>
-        <div style="background:rgba(255,255,255,0.06);border-radius:999px;height:10px;overflow:hidden;">
-            <div style="width:@(Model.MyOverallPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%;background:var(--accent);height:100%;border-radius:999px;"></div>
+        <div style="background:var(--line);border-radius:999px;height:10px;overflow:hidden;">
+            <div style="width:@(Model.MyOverallPercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%;background:var(--grass);height:100%;border-radius:999px;"></div>
         </div>
         <div style="font-size:0.8rem;color:var(--muted);margin:10px 0 4px;">Class average</div>
-        <div style="background:rgba(255,255,255,0.06);border-radius:999px;height:10px;overflow:hidden;">
-            <div style="width:@(Model.ClassAveragePercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%;background:var(--accent-purple);height:100%;border-radius:999px;"></div>
+        <div style="background:var(--line);border-radius:999px;height:10px;overflow:hidden;">
+            <div style="width:@(Model.ClassAveragePercent.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%;background:var(--sky);height:100%;border-radius:999px;"></div>
         </div>
     </div>
 }

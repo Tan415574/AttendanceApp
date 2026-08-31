@@ -207,6 +207,14 @@ from screenshots of the conversation, not an automated transcript pull.*
 49. *(2026-08-31, 09:45)* `can you create it like an actual website like the landing
     page, it says everything it can do it has the fun drop in balls show that make
     it look really good`
+50. *(2026-08-31, ~11:00)* [pasted a complete "Roll Call — Style Guide" HTML document
+    with exact hex codes, font choices (Baloo 2 + Inter), and a 4-face mascot-blob
+    character system, plus 3 reference images of colorful mood-tracker apps with blob
+    mascots] `redesign everything to math these vibes please plan before you do it
+    and then do it i want colors, characters bubbles and fun as possible`
+51. *(2026-08-31, ~11:05)* selected "Not submitted yet — doing this anyway" when
+    asked (via a clarifying question) about submission status, given the brief's
+    stated deadline had already passed
 
 ---
 

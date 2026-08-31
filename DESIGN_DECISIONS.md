@@ -320,6 +320,39 @@ nobody has to sign up to see the feature that sells the app), a feature grid, an
 final CTA. Every feature described on the page is something that actually exists —
 no marketing claims ahead of the build.
 
+**Follow-up: full "Roll Call" reskin — bright, playful, mascot-driven.** The dark
+fintech look from earlier in §9 was replaced outright with a second, unrelated
+aesthetic: a warm cream background, a five-color semantic palette (coral/grass/sunny/
+sky/bubblegum), Baloo 2 for display type paired with Inter for body text, and a
+four-face mascot-blob character system. The developer supplied a complete style guide
+document (exact hex codes, font choices, component specs) plus three reference images
+of colorful mood-tracker apps with blob mascots, and asked directly for "colors,
+characters, bubbles and fun as possible." This is the third full palette swap this
+project has gone through (light pastel → dark fintech → Roll Call) using the same
+mechanism each time: every component class name in `site.css` stays fixed, only the
+`:root` token values and a handful of hardcoded-hex outliers change, so a total visual
+reskin never touches markup or C# logic.
+
+The mascot system replaced the old "one shape, many colors" bubble avatars
+(round/clover/wave/etc.) with "one shape, many faces": every avatar is now a plain
+circle, and a small canvas routine (`drawMascotFace`, duplicated in `board.js` and
+`landing-demo.js` since they don't share a bundler) draws one of two expressions
+(a smiling face or a wide-eyed "streak" face) directly onto the physics body during
+each animation frame, keyed off a per-body face index. This was simpler than swapping
+in SVG/image assets — matter.js already renders bodies to canvas every frame, so
+drawing a face there costs nothing extra and needs no asset loading.
+
+One real bug surfaced during verification, not by developer report: `.auth-hero-brand`
+sets white brand text, correct for the coral gradient background of the auth
+split-screen it was designed for, but the landing page's header reuses the same class
+on a plain cream background — the brand name was rendering nearly invisible
+(white-on-cream). Scoped a `.landing-header .auth-hero-brand` override to the actual
+text/ink color rather than changing the shared class, since the auth pages still need
+white-on-gradient. Full re-verification after the fix (functional 24-check audit,
+Overview's 7-check audit, and a live SignalR check-in test) found no regressions and
+confirmed the mascot face renders correctly on the real board, not just the landing
+page's self-driving demo.
+
 ## 10. AI's role in this build
 
 AI (Claude, via Claude Code) was used to accelerate implementation of decisions made

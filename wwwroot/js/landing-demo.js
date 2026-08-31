@@ -1,5 +1,5 @@
-// Purely cosmetic showcase for the landing page — same physics engine and avatar
-// palette as the real live board (Hubs/AttendanceHub.cs + wwwroot/js/board.js), but
+// Purely cosmetic showcase for the landing page — same physics engine, mascot
+// palette, and face-drawing logic as the real live board (wwwroot/js/board.js), but
 // self-contained and driven by a timer instead of real SignalR check-ins. No real
 // data involved.
 (function initLandingDemo() {
@@ -8,21 +8,37 @@
 
     const { Engine, Render, Runner, Bodies, Composite, Body } = Matter;
 
-    const AVATARS = [
-        { shape: "round", color: "#F17FB0" },
-        { shape: "clover", color: "#9B8CFB" },
-        { shape: "wave", color: "#5AC8FA" },
-        { shape: "cloud", color: "#3FD9C7" },
-        { shape: "round", color: "#6C7BF0" },
-        { shape: "hex", color: "#F5B942" },
-        { shape: "round", color: "#8EF07F" },
-        { shape: "triangle", color: "#5FCE63" },
-        { shape: "square", color: "#FF7A6B" },
-    ];
+    const AVATARS = ["#FF6B4A", "#6BCB77", "#FFC93C", "#4DA6FF", "#FF6FA5"];
     const NAMES = ["Alex Kim", "Priya N", "Sam O", "Jordan M", "Riya P", "Chen W", "Liam B", "Zoe T", "Noah R", "Amara D", "Kofi A", "Mei L"];
+    const FACE_INK = "#22201C";
+
+    function drawMascotFace(ctx, x, y, radius, faceIndex) {
+        ctx.strokeStyle = FACE_INK;
+        ctx.fillStyle = FACE_INK;
+        ctx.lineWidth = Math.max(2, radius * 0.09);
+        ctx.lineCap = "round";
+        const eyeOffsetX = radius * 0.32;
+        const eyeY = y - radius * 0.06;
+
+        if (faceIndex % 3 !== 0) {
+            const eyeR = radius * 0.09;
+            ctx.beginPath(); ctx.arc(x - eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x + eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(x - radius * 0.3, y + radius * 0.16);
+            ctx.quadraticCurveTo(x, y + radius * 0.46, x + radius * 0.3, y + radius * 0.16);
+            ctx.stroke();
+        } else {
+            const eyeR = radius * 0.15;
+            ctx.beginPath(); ctx.arc(x - eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x + eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(x, y + radius * 0.32, radius * 0.09, 0, Math.PI * 2); ctx.fill();
+        }
+    }
 
     const width = holder.clientWidth || 600;
     const height = holder.clientHeight || 420;
+    const RADIUS = 26;
 
     const engine = Engine.create();
     engine.gravity.y = 0.7;
@@ -44,42 +60,30 @@
     const bodyLabels = new Map();
     let checkedIn = 0;
     const countEl = document.getElementById("landingCount");
+    let spawnCount = 0;
 
     function spawn() {
-        const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
-        const x = 32 + Math.random() * (width - 64);
-        const radius = 22;
-
-        let body;
-        switch (avatar.shape) {
-            case "triangle":
-                body = Bodies.polygon(x, -30, 3, radius, { restitution: 0.45, friction: 0.6 });
-                break;
-            case "square":
-                body = Bodies.rectangle(x, -30, radius * 1.7, radius * 1.7, { restitution: 0.45, friction: 0.6, chamfer: { radius: 8 } });
-                break;
-            case "hex":
-                body = Bodies.polygon(x, -30, 6, radius, { restitution: 0.45, friction: 0.6 });
-                break;
-            default:
-                body = Bodies.circle(x, -30, radius, { restitution: 0.45, friction: 0.6 });
-        }
-
-        body.render.fillStyle = avatar.color;
-        body.render.strokeStyle = "rgba(0,0,0,0.15)";
+        const colorIndex = Math.floor(Math.random() * AVATARS.length);
+        const x = 34 + Math.random() * (width - 68);
+        const body = Bodies.circle(x, -30, RADIUS, { restitution: 0.45, friction: 0.6 });
+        body.render.fillStyle = AVATARS[colorIndex];
+        body.render.strokeStyle = "rgba(34,32,28,0.12)";
         body.render.lineWidth = 2;
-        Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.2);
+        Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.06);
         Composite.add(engine.world, body);
 
         const name = NAMES[Math.floor(Math.random() * NAMES.length)];
-        bodyLabels.set(body.id, name.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase());
+        bodyLabels.set(body.id, {
+            initials: name.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase(),
+            faceIndex: spawnCount++,
+        });
 
         checkedIn++;
         if (countEl) countEl.textContent = `${checkedIn} checked in`;
 
         // Keep the demo from piling up forever — drop the oldest once it gets crowded.
         const dynamicBodies = Composite.allBodies(engine.world).filter(b => !b.isStatic);
-        if (dynamicBodies.length > 22) {
+        if (dynamicBodies.length > 20) {
             const oldest = dynamicBodies[0];
             Composite.remove(engine.world, oldest);
             bodyLabels.delete(oldest.id);
@@ -88,12 +92,14 @@
 
     Matter.Events.on(render, "afterRender", () => {
         const ctx = render.context;
-        ctx.font = "10px -apple-system, sans-serif";
-        ctx.fillStyle = "#0c0c14";
-        ctx.textAlign = "center";
         Composite.allBodies(engine.world).forEach(b => {
-            const label = bodyLabels.get(b.id);
-            if (label) ctx.fillText(label, b.position.x, b.position.y + 3);
+            const entry = bodyLabels.get(b.id);
+            if (!entry) return;
+            drawMascotFace(ctx, b.position.x, b.position.y, RADIUS, entry.faceIndex);
+            ctx.font = `700 9px 'Baloo 2', sans-serif`;
+            ctx.fillStyle = "rgba(34,32,28,0.65)";
+            ctx.textAlign = "center";
+            ctx.fillText(entry.initials, b.position.x, b.position.y + RADIUS * 0.78);
         });
     });
 

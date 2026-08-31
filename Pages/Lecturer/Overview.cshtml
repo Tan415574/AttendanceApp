@@ -175,8 +175,8 @@ else
         });
 
         const chartAnimation = reduceMotion ? { duration: 0 } : { duration: 900, easing: 'easeOutQuart' };
-        const gridColor = 'rgba(255,255,255,0.06)';
-        const tickColor = '#9d9db0';
+        const gridColor = 'rgba(34,32,28,0.08)';
+        const tickColor = '#5C574E';
         Chart.defaults.color = tickColor;
         Chart.defaults.font.family = "'Inter', sans-serif";
 
@@ -184,8 +184,8 @@ else
         const trendData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Trend.Select(t => t.Percent)));
         const trendCtx = document.getElementById('trendChart').getContext('2d');
         const gradient = trendCtx.createLinearGradient(0, 0, 0, 200);
-        gradient.addColorStop(0, 'rgba(142, 240, 127, 0.35)');
-        gradient.addColorStop(1, 'rgba(142, 240, 127, 0.02)');
+        gradient.addColorStop(0, 'rgba(255, 107, 74, 0.30)');
+        gradient.addColorStop(1, 'rgba(255, 107, 74, 0.02)');
         new Chart(trendCtx, {
             type: 'line',
             data: {
@@ -193,12 +193,12 @@ else
                 datasets: [{
                     label: 'Attendance %',
                     data: trendData,
-                    borderColor: '#8ef07f',
+                    borderColor: '#FF6B4A',
                     backgroundColor: gradient,
                     fill: true,
                     tension: 0.35,
                     pointRadius: 3,
-                    pointBackgroundColor: '#8ef07f',
+                    pointBackgroundColor: '#FF6B4A',
                 }]
             },
             options: {
@@ -217,7 +217,7 @@ else
                 labels: ['Excellent (≥90%)', 'Good (75-89%)', 'At risk (50-74%)', 'Critical (<50%)'],
                 datasets: [{
                     data: [@Model.ExcellentCount, @Model.GoodCount, @Model.AtRiskCount, @Model.CriticalCount],
-                    backgroundColor: ['#8ef07f', '#3fd9c7', '#f5b942', '#ff7a6b'],
+                    backgroundColor: ['#6BCB77', '#4DA6FF', '#FFC93C', '#FF6FA5'],
                     borderWidth: 0,
                 }]
             },
@@ -253,11 +253,11 @@ else
         categoryChart('typeChart',
             @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BySessionType.Select(t => t.Label))),
             @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BySessionType.Select(t => t.Percent))),
-            '#9b8cfb');
+            '#4DA6FF');
 
         categoryChart('dowChart',
             @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ByDayOfWeek.Select(t => t.Label))),
             @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ByDayOfWeek.Select(t => t.Percent))),
-            '#5ac8fa');
+            '#FFC93C');
     </script>
 }

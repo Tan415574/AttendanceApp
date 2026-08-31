@@ -1,23 +1,56 @@
-// Live check-in board: each student who checks in "falls" onto the board as their
-// assigned blob character and settles among the others (physics via matter.js).
-// Real-time push comes from SignalR (AttendanceHub) rather than polling.
+// Live check-in board: each student who checks in "falls" onto the board as a
+// mascot blob and settles among the others (physics via matter.js). Real-time push
+// comes from SignalR (AttendanceHub) rather than polling.
+//
+// Mascot system: one blob shape, colored per the Roll Call palette, with a face
+// drawn on top each frame (matches the style guide's "one shape, many faces"
+// principle — every check-in is a good-news moment, so faces alternate between a
+// big smile and a wide-eyed "streak" look rather than encoding attendance state).
 
 // Mirrors Services/AvatarAssigner.cs — keep these two lists in sync if you add avatars.
-// Palette matches the dark dashboard reskin's accent set (site.css --accent-*).
 const AVATARS = [
-    { shape: "round", color: "#F17FB0" },
-    { shape: "clover", color: "#9B8CFB" },
-    { shape: "wave", color: "#5AC8FA" },
-    { shape: "cloud", color: "#3FD9C7" },
-    { shape: "round", color: "#6C7BF0" },
-    { shape: "hex", color: "#F5B942" },
-    { shape: "round", color: "#8EF07F" },
-    { shape: "triangle", color: "#5FCE63" },
-    { shape: "square", color: "#FF7A6B" },
-    { shape: "round", color: "#9B8CFB" },
-    { shape: "pill", color: "#F17FB0" },
-    { shape: "round", color: "#5AC8FA" },
+    "#FF6B4A", // coral
+    "#6BCB77", // grass
+    "#FFC93C", // sunny
+    "#4DA6FF", // sky
+    "#FF6FA5", // bubblegum
+    "#6BCB77",
+    "#FF6B4A",
+    "#4DA6FF",
+    "#FFC93C",
+    "#FF6FA5",
+    "#6BCB77",
+    "#FF6B4A",
 ];
+
+const FACE_INK = "#22201C";
+
+function drawMascotFace(ctx, x, y, radius, faceIndex) {
+    ctx.strokeStyle = FACE_INK;
+    ctx.fillStyle = FACE_INK;
+    ctx.lineWidth = Math.max(2, radius * 0.09);
+    ctx.lineCap = "round";
+
+    const eyeOffsetX = radius * 0.32;
+    const eyeY = y - radius * 0.06;
+
+    if (faceIndex % 3 !== 0) {
+        // Big open smile — the default "present, glad to be here" face.
+        const eyeR = radius * 0.09;
+        ctx.beginPath(); ctx.arc(x - eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x - radius * 0.3, y + radius * 0.16);
+        ctx.quadraticCurveTo(x, y + radius * 0.46, x + radius * 0.3, y + radius * 0.16);
+        ctx.stroke();
+    } else {
+        // Wide-eyed "streak" face — sprinkled in for variety.
+        const eyeR = radius * 0.15;
+        ctx.beginPath(); ctx.arc(x - eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + eyeOffsetX, eyeY, eyeR, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x, y + radius * 0.32, radius * 0.09, 0, Math.PI * 2); ctx.fill();
+    }
+}
 
 (function initBoard() {
     const { Engine, Render, Runner, Bodies, Composite, Body } = Matter;
@@ -44,46 +77,34 @@ const AVATARS = [
     Render.run(render);
     Runner.run(Runner.create(), engine);
 
-    const bodyLabels = new Map(); // matter body id -> {name}
+    const bodyLabels = new Map(); // matter body id -> initials
+    const BLOB_RADIUS = 30;
 
     function spawnAvatar(name, avatarIndex) {
-        const avatar = AVATARS[avatarIndex % AVATARS.length];
-        const x = 40 + Math.random() * (width - 80);
-        const radius = 28;
+        const color = AVATARS[avatarIndex % AVATARS.length];
+        const x = 44 + Math.random() * (width - 88);
 
-        let body;
-        switch (avatar.shape) {
-            case "triangle":
-                body = Bodies.polygon(x, -40, 3, radius, { restitution: 0.4, friction: 0.6 });
-                break;
-            case "square":
-                body = Bodies.rectangle(x, -40, radius * 1.7, radius * 1.7, { restitution: 0.4, friction: 0.6, chamfer: { radius: 10 } });
-                break;
-            case "hex":
-                body = Bodies.polygon(x, -40, 6, radius, { restitution: 0.4, friction: 0.6 });
-                break;
-            default: // round, clover, wave, cloud, pill — all render as a soft circle body
-                body = Bodies.circle(x, -40, radius, { restitution: 0.4, friction: 0.6 });
-        }
-
-        body.render.fillStyle = avatar.color;
-        body.render.strokeStyle = "rgba(0,0,0,0.08)";
+        const body = Bodies.circle(x, -40, BLOB_RADIUS, { restitution: 0.4, friction: 0.6 });
+        body.render.fillStyle = color;
+        body.render.strokeStyle = "rgba(34,32,28,0.12)";
         body.render.lineWidth = 2;
-        Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.2);
+        Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.08); // gentle — faces should stay mostly upright
 
         Composite.add(engine.world, body);
-        bodyLabels.set(body.id, name.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase());
+        bodyLabels.set(body.id, { initials: name.split(" ").map(p => p[0]).slice(0, 2).join("").toUpperCase(), faceIndex: avatarIndex });
     }
 
-    // Draw initials on top of each settled body after each physics tick.
+    // Draw a face + initials on top of each settled body after each physics tick.
     Matter.Events.on(render, "afterRender", () => {
         const ctx = render.context;
-        ctx.font = "11px -apple-system, sans-serif";
-        ctx.fillStyle = "#1c1c1c";
-        ctx.textAlign = "center";
         Composite.allBodies(engine.world).forEach((b) => {
-            const label = bodyLabels.get(b.id);
-            if (label) ctx.fillText(label, b.position.x, b.position.y + 4);
+            const entry = bodyLabels.get(b.id);
+            if (!entry) return;
+            drawMascotFace(ctx, b.position.x, b.position.y, BLOB_RADIUS, entry.faceIndex);
+            ctx.font = `700 10px 'Baloo 2', sans-serif`;
+            ctx.fillStyle = "rgba(34,32,28,0.65)";
+            ctx.textAlign = "center";
+            ctx.fillText(entry.initials, b.position.x, b.position.y + BLOB_RADIUS * 0.78);
         });
     });
 
