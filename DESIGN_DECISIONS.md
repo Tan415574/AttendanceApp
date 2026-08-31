@@ -353,6 +353,32 @@ Overview's 7-check audit, and a live SignalR check-in test) found no regressions
 confirmed the mascot face renders correctly on the real board, not just the landing
 page's self-driving demo.
 
+**Follow-up: already-signed-in users no longer loop back to "Welcome back."**
+`Login.OnGet`/`Register.OnGet` previously did nothing — only `OnPost` redirected after a
+successful sign-in/sign-up. That meant a signed-in user who *navigated back* to
+`/Account/Login` or `/Account/Register` (a stale link, the browser back button, a
+bookmark) landed on the sign-in form again, looking exactly as if they'd been signed
+out, when they hadn't been. Flagged directly by the developer. Both `OnGet` handlers
+now check `_signInManager.IsSignedIn(User)` first and redirect straight to the right
+dashboard (mirroring the exact redirect logic each page's `OnPost` already used),
+falling through to the normal form render only for anonymous visitors. Verified with a
+Playwright check that signs in, then navigates directly to both URLs, and confirms the
+landing page never re-renders "Welcome back" for a signed-in session.
+
+**Follow-up: a second live demo further down the landing page, and a cursor-tracking
+mascot.** Two more asks alongside the Enter-key report: show the physics drop-in board
+again later in the page (not just the hero), and add a big mascot character. The first
+required `landing-demo.js` to stop assuming a single hardcoded canvas — it now
+initializes one independent instance per `[data-landing-demo]` holder found on the
+page, so a new "Watch the room fill up" section (placed after "How it works", before
+the final CTA) runs its own board with its own check-in counter, no changes needed to
+the hero's existing one beyond swapping its `id` for the same data attribute. The
+second is a fixed-position floating mascot (`cursor-mascot.js`) whose SVG eyes track
+the mouse across the whole page, modeled directly on an eye-tracking mechanic in a
+reference mockup the developer supplied (`pupil` elements offset toward the cursor,
+clamped to a max radius) — scoped to the landing page only, decorative, and a no-op
+under `prefers-reduced-motion`.
+
 ## 10. AI's role in this build
 
 AI (Claude, via Claude Code) was used to accelerate implementation of decisions made

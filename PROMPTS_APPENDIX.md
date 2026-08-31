@@ -215,6 +215,10 @@ from screenshots of the conversation, not an automated transcript pull.*
 51. *(2026-08-31, ~11:05)* selected "Not submitted yet — doing this anyway" when
     asked (via a clarifying question) about submission status, given the brief's
     stated deadline had already passed
+52. *(2026-08-31, ~11:40)* [pasted a reference HTML mockup, `attendance-home.html`, of
+    a mobile home screen with an eye-tracking mascot character] `THE SIGN IN WHEN YOU
+    SAY ENTER GOES TO THE WELCOME BACK SIGN IN. CAN YOU ADD THE DROP IN STUFF ON THE
+    LANDING PAGE LATER ON AND ADD A BIG CHARACTER THAT FOLLOWS THE CURSOR`
 
 ---
 
