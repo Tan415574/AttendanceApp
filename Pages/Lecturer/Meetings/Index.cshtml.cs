@@ -36,10 +36,18 @@ public class IndexModel : PageModel
         await LoadMeetings();
     }
 
+    // The auto-created meeting every single-button import lands in, identified by this
+    // fixed Description so re-uploads (the same file re-checked, or a corrected version)
+    // land back in the SAME meeting instead of spawning a duplicate one each time —
+    // AttendanceImportService's own upsert logic (get-or-create session per date, replace
+    // existing records) only works when it's handed the same meetingId every time.
+    private const string ImportMeetingDescription = "Created automatically from a historical attendance import.";
+
     // The single "bring in my old spreadsheet" button on the landing page. No meeting
     // needs to exist first — this creates one on the fly (titled from the file name)
-    // to hold whatever sessions the sheet's date columns need, then unpivots every
-    // student's attendance out of it in one shot.
+    // the first time, then reuses it on every later import, so unpivoting every
+    // student's attendance out of a re-uploaded sheet updates the same dataset instead
+    // of doubling it.
     public async Task<IActionResult> OnPostImportAsync()
     {
         if (ImportFile is null || ImportFile.Length == 0)
@@ -50,21 +58,28 @@ public class IndexModel : PageModel
         }
 
         var lecturerId = _userManager.GetUserId(User)!;
-        var title = Path.GetFileNameWithoutExtension(ImportFile.FileName);
-        if (string.IsNullOrWhiteSpace(title)) title = "Imported attendance";
 
-        var meeting = new Meeting
+        var meeting = await _db.Meetings.FirstOrDefaultAsync(m =>
+            m.LecturerId == lecturerId && m.Description == ImportMeetingDescription);
+
+        if (meeting is null)
         {
-            Title = title,
-            Description = "Created automatically from a historical attendance import.",
-            Type = MeetingType.Lecture,
-            Recurrence = RecurrencePattern.OnceOff,
-            StartDate = DateOnly.FromDateTime(DateTime.Today),
-            TimeOfDay = new TimeOnly(0, 0),
-            LecturerId = lecturerId
-        };
-        _db.Meetings.Add(meeting);
-        await _db.SaveChangesAsync();
+            var title = Path.GetFileNameWithoutExtension(ImportFile.FileName);
+            if (string.IsNullOrWhiteSpace(title)) title = "Imported attendance";
+
+            meeting = new Meeting
+            {
+                Title = title,
+                Description = ImportMeetingDescription,
+                Type = MeetingType.Lecture,
+                Recurrence = RecurrencePattern.OnceOff,
+                StartDate = DateOnly.FromDateTime(DateTime.Today),
+                TimeOfDay = new TimeOnly(0, 0),
+                LecturerId = lecturerId
+            };
+            _db.Meetings.Add(meeting);
+            await _db.SaveChangesAsync();
+        }
 
         await using var stream = ImportFile.OpenReadStream();
         ImportResultSummary = await _importer.ImportAsync(meeting.Id, stream);
