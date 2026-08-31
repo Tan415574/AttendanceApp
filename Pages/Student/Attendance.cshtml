@@ -10,7 +10,10 @@
 @if (Model.SessionsHeldAllTime > 0)
 {
     <div class="card">
-        <h2 style="margin-top:0;">You vs. the class</h2>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px;">
+            <partial name="_Mascot" model='@(new MascotOptions { Shape = "circle", Size = 40, Color = "var(--bubblegum)", Face = "smile" })' />
+            <h2 style="margin:0;">You vs. the class</h2>
+        </div>
         <div style="display:flex;gap:28px;align-items:baseline;flex-wrap:wrap;margin-bottom:16px;">
             <div>
                 <div style="font-family:var(--font-display);font-size:2rem;font-weight:800;">@Model.MyOverallPercent.ToString("0.#")%</div>
@@ -36,7 +39,10 @@
 }
 
 <div class="card">
-    <h1>My attendance</h1>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <partial name="_Mascot" model='@(new MascotOptions { Shape = "square", Size = 40, Color = "var(--sunny)", Face = "wide" })' />
+        <h1 style="margin:0;">My attendance</h1>
+    </div>
 
     <div style="display:flex;gap:12px;margin-bottom:20px;">
         <div class="card" style="flex:1;text-align:center;background:rgba(142,240,127,0.08);">

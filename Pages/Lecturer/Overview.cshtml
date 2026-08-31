@@ -10,7 +10,10 @@
 {
     <div class="card">
         <h1>Attendance overview</h1>
-        <p style="color:var(--muted);">
+        <div class="mascot-empty-state">
+            <partial name="_Mascot" model='@(new MascotOptions { Shape = "blob", Size = 76, Color = "var(--sky)", Face = "wide" })' />
+        </div>
+        <p style="color:var(--muted);text-align:center;">
             Nothing to show yet — this fills in once you've held at least one session and
             have at least one registered student.
         </p>
@@ -19,7 +22,10 @@
 else
 {
     <div class="card">
-        <h1>Class snapshot</h1>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <partial name="_Mascot" model='@(new MascotOptions { Shape = "circle", Size = 40, Color = "var(--coral)", Face = "smile" })' />
+            <h1 style="margin:0;">Class snapshot</h1>
+        </div>
         <div class="snapshot-grid">
             <div class="snapshot-tile hero">
                 <div class="value" data-count="@Model.OverallPercent.ToString("0.#", System.Globalization.CultureInfo.InvariantCulture)" data-suffix="%">0%</div>

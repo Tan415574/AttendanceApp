@@ -21,6 +21,10 @@
         </div>
     </div>
 
+    <partial name="_Mascot" model='@(new MascotOptions { Shape = "circle", Size = 46, Color = "var(--sunny)", Face = "smile", Style = "position:absolute;top:64px;right:56px;z-index:1;" })' />
+    <partial name="_Mascot" model='@(new MascotOptions { Shape = "blob", Size = 60, Color = "var(--sky)", Face = "wide", CssClass = "delay-1", Style = "position:absolute;bottom:150px;left:24px;z-index:1;" })' />
+    <partial name="_Mascot" model='@(new MascotOptions { Shape = "square", Size = 34, Color = "var(--white)", Face = "smile", CssClass = "delay-2", Style = "position:absolute;bottom:150px;right:50px;z-index:1;opacity:0.85;" })' />
+
     <div class="auth-hero-float">
         <div class="icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

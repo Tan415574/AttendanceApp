@@ -4,7 +4,10 @@
 
 <div class="card">
     <div style="display:flex;justify-content:space-between;align-items:center;">
-        <h1>My meetings</h1>
+        <div style="display:flex;align-items:center;gap:12px;">
+            <partial name="_Mascot" model='@(new MascotOptions { Shape = "circle", Size = 40, Color = "var(--grass)", Face = "smile" })' />
+            <h1 style="margin:0;">My meetings</h1>
+        </div>
         <a class="btn" href="/Lecturer/Meetings/Create">+ New meeting</a>
     </div>
 
@@ -30,7 +33,10 @@
 
     @if (!Model.Meetings.Any())
     {
-        <p>No meetings yet — create your first lecture, workshop, or test above.</p>
+        <div class="mascot-empty-state">
+            <partial name="_Mascot" model='@(new MascotOptions { Shape = "blob", Size = 88, Color = "var(--sunny)", Face = "smile" })' />
+        </div>
+        <p style="text-align:center;">No meetings yet — create your first lecture, workshop, or test above.</p>
     }
 
     @foreach (var m in Model.Meetings)

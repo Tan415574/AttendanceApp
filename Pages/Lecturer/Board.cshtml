@@ -3,7 +3,10 @@
 @{ ViewData["Title"] = Model.Meeting?.Title ?? "Board"; }
 
 <div class="card">
-    <h1>@Model.Meeting.Title <span class="pill @Model.Meeting.Type.ToString().ToLower()">@Model.Meeting.Type</span></h1>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <partial name="_Mascot" model='@(new MascotOptions { Shape = "blob", Size = 40, Color = "var(--sky)", Face = "smile" })' />
+        <h1 style="margin:0;">@Model.Meeting.Title <span class="pill @Model.Meeting.Type.ToString().ToLower()">@Model.Meeting.Type</span></h1>
+    </div>
     @if (!string.IsNullOrWhiteSpace(Model.Meeting.Description))
     {
         <p style="color:var(--muted);">@Model.Meeting.Description</p>

@@ -3,11 +3,17 @@
 @{ ViewData["Title"] = "Attendance queries"; }
 
 <div class="card">
-    <h1>Open queries</h1>
+    <div style="display:flex;align-items:center;gap:12px;">
+        <partial name="_Mascot" model='@(new MascotOptions { Shape = "square", Size = 40, Color = "var(--bubblegum)", Face = "wide" })' />
+        <h1 style="margin:0;">Open queries</h1>
+    </div>
 
     @if (!Model.OpenQueries.Any())
     {
-        <p>No open queries right now.</p>
+        <div class="mascot-empty-state">
+            <partial name="_Mascot" model='@(new MascotOptions { Shape = "circle", Size = 88, Color = "var(--grass)", Face = "smile" })' />
+        </div>
+        <p style="text-align:center;">No open queries right now.</p>
     }
 
     @foreach (var q in Model.OpenQueries)

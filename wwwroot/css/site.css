@@ -675,6 +675,22 @@ a.cal-cell:hover { transform: scale(1.1) rotate(-2deg); box-shadow: 0 4px 14px r
   min-height: 480px;
 }
 
+/* ---- Ambient decorative mascots (small, non-interactive blob characters) ---- */
+.mascot-decor {
+  pointer-events: none;
+  animation: mascotBob 5s ease-in-out infinite;
+}
+.mascot-decor.delay-1 { animation-delay: -1.6s; }
+.mascot-decor.delay-2 { animation-delay: -3.2s; }
+@keyframes mascotBob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(-3deg); }
+}
+.mascot-empty-state { display: flex; justify-content: center; margin: 8px 0 18px; }
+@media (prefers-reduced-motion: reduce) {
+  .mascot-decor { animation: none; }
+}
+
 /* ---- Cursor-tracking mascot (landing page only) ---- */
 .cursor-mascot {
   position: fixed;
